@@ -13,23 +13,14 @@ public class Entity : MonoBehaviour
     [Header("Private Componets")]
     protected Rigidbody2D rb;
     protected SpriteRenderer spriteRenderer;
-    private void Awake()
+    public virtual void Awake()
     {
         health = maxhealth;
         rb = rb.GetComponent<Rigidbody2D>();
         spriteRenderer = rb.GetComponent<SpriteRenderer>();
     }
-    void Start()
-    {
-        
-    }
-
     
-    void Update()
-    {
-        
-    }
-    public void GetHit(float damage)
+    public virtual void GetHit(float damage)
     {
         health -= damage;
         StartCoroutine(GetHitEffect(0.5f));
@@ -38,18 +29,21 @@ public class Entity : MonoBehaviour
             DestroyBehavior();
         }
     }
-    public void GetHit(float damage,Vector2 knockback)
+    public virtual void GetHit(float damage,Vector2 knockback)
     {
         health -= damage;
         if(rb)rb.AddForce(knockback,ForceMode2D.Impulse);
         StartCoroutine(GetHitEffect(0.5f));
-
+        if (health <= 0)
+        {
+            DestroyBehavior();
+        }
     }
-    public void DestroyBehavior()
+    public virtual void DestroyBehavior()
     {
         Destroy(gameObject);
     }
-    public IEnumerator GetHitEffect(float duration)
+    public virtual IEnumerator GetHitEffect(float duration)
     {
         float counter=0;
         spriteRenderer.material.SetFloat("_HurtDuration",1);
