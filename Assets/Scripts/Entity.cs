@@ -5,19 +5,32 @@ using UnityEngine;
 public class Entity : MonoBehaviour
 {
     [Header("Creature Property")]
-    [SerializeField] private float maxhealth;
+    [SerializeField] protected float maxhealth;
+    [SerializeField] protected float speed;
     public float health { get; set; }
-    public float speed { get; set; }
 
 
     [Header("Private Componets")]
     protected Rigidbody2D rb;
     protected SpriteRenderer spriteRenderer;
+    protected Vector2 localScale;
+    protected Animator animator;
     public virtual void Awake()
     {
         health = maxhealth;
-        rb = rb.GetComponent<Rigidbody2D>();
-        spriteRenderer = rb.GetComponent<SpriteRenderer>();
+
+        if (!GetComponent<Rigidbody2D>())
+        {
+            rb = gameObject.AddComponent<Rigidbody2D>();
+        }
+        else
+        {
+            rb = GetComponent<Rigidbody2D>();
+        }
+        rb.gravityScale = 0;
+        animator = GetComponent<Animator>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        localScale = transform.localScale;
     }
     
     public virtual void GetHit(float damage)
@@ -56,4 +69,16 @@ public class Entity : MonoBehaviour
         spriteRenderer.material.SetFloat("_HurtDuration", 0);
         
     }
+    public virtual void FaceTo(Vector2 position)
+    {
+        if (position.x > transform.position.x)
+        {
+            transform.localScale = new Vector2(localScale.x, localScale.y);
+        }
+        else
+        {
+            transform.localScale = new Vector2(-localScale.x, localScale.y);
+        }
+    }
+
 }
