@@ -4,15 +4,20 @@ using UnityEngine;
 
 public class Entity : MonoBehaviour
 {
-
+    [Header("Creature Property")]
     [SerializeField] private float maxhealth;
     public float health { get; set; }
-    Rigidbody2D rb;
-    SpriteRenderer spriteRenderer;
+    public float speed { get; set; }
+
+
+    [Header("Private Componets")]
+    protected Rigidbody2D rb;
+    protected SpriteRenderer spriteRenderer;
     private void Awake()
     {
         health = maxhealth;
         rb = rb.GetComponent<Rigidbody2D>();
+        spriteRenderer = rb.GetComponent<SpriteRenderer>();
     }
     void Start()
     {
