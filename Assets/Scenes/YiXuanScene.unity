@@ -468,7 +468,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxhealth: 0
-  speed: 8
+  speed: 6
   Target: {fileID: 0}
   Effect: {fileID: 1207560994}
   segmentCount: 10
