@@ -34,7 +34,7 @@ public class GameManager : MonoBehaviour
             Cursor.position = Player.Target.position;
         else
             Cursor.position = MousePosition;
-        if (!Player.Target&& PlayerTarget && Input.GetKeyDown(KeyCode.Mouse0))
+        if (!Player.Target&&Player.currentState!=PlayerMovement.State.Attacking && PlayerTarget && Input.GetKeyDown(KeyCode.Mouse0))
         {
             Player.Target = PlayerTarget;
             Player.ChangeState(PlayerMovement.State.Attacking);

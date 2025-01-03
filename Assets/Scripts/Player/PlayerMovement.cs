@@ -14,14 +14,15 @@ public class PlayerMovement : Entity
     public int segmentCount = 10;  // Á´×Ó¶ÎÊý
     public LineRenderer lineRenderer;
     [SerializeField]private float CurveAmount;
-
+    float chargelevel;
     bool walkable, attackable, runable;
+    bool isrunning, isspinning;
     public enum State { 
         Idle,
         Walking,
         Attacking,
     }
-    bool isrunning;
+    
     public State currentState;
     public void Start()
     {
@@ -103,7 +104,7 @@ public class PlayerMovement : Entity
             FaceTo((Vector2)transform.position + FaceDirection);
             Vector2 _speed;
             if (isrunning)
-                _speed = FaceDirection * speed * 2;
+                _speed = FaceDirection * speed * 1.5f;
             else
                 _speed = FaceDirection * speed;
             if(rb.velocity.magnitude<= _speed.magnitude)
@@ -135,6 +136,7 @@ public class PlayerMovement : Entity
             walkable = true;
             Effect.GetComponent<ParticleSystem>().Stop();
             lineRenderer.enabled = false;
+            isspinning = false;
         }
     }
     
@@ -150,7 +152,7 @@ public class PlayerMovement : Entity
         float counter = 0;
         CurveAmount = 0;
         rb.velocity = rb.velocity + (Vector2)(Target.position-transform.position).normalized*-5;
-        while (Target && counter <= 0.3f)
+        while (Target && counter <= 0.15f)
         {
             counter += Time.deltaTime;
 
@@ -185,30 +187,54 @@ public class PlayerMovement : Entity
         float InputDirection = Mathf.Sign(Vector2.Dot(FaceDirection, startvector));
         if(RawInput==Vector2.zero)
             InputDirection = 0;
-        float speed=5;
+        float speed= this.speed;
         float charge=0;
+        chargelevel = 0;
         animator.SetTrigger("attack");
         while (Target)
         {
+            if (Vector2.Distance(transform.position, Target.transform.position) <= 1)
+            {
+                Target.GetComponent<Entity>().GetHit(speed>30? 1+chargelevel: 1 + chargelevel*2, rb.velocity/2);
+                Target = null;
+                break;
+            }
             InputDirection = Mathf.Sign(Vector2.Dot(FaceDirection, startvector));
-            if (RawInput == Vector2.zero)
-                InputDirection = 0;
+            
             direction = (Target.position - transform.position).normalized;
-            if (InputDirection == 0)
+            if (RawInput == Vector2.zero)
             {
                 rb.AddForce(direction * speed);
+                if (speed >= 30)
+                {
+                    rb.AddForce(direction * speed);
+                    direction = new Vector2(direction.y, -direction.x);
+                    rb.AddForce(direction * speed * -InputDirection);
+                    
+                }
             }
             else
             {
-                rb.AddForce(direction * speed * Vector2.Distance(transform.position, Target.transform.position) * 0.2f);
+                if(speed> this.speed)
+                    rb.AddForce(direction * speed*4 * Vector2.Distance(transform.position, Target.transform.position) * 0.05f);
+                else
+                    rb.AddForce(direction * speed * Vector2.Distance(transform.position, Target.transform.position) * 0.05f);
             }
-
+            if (RawInput == Vector2.zero)
+                InputDirection = 0;
             direction = new Vector2(direction.y, -direction.x);
             rb.AddForce(direction * speed* InputDirection);
             
             if (RawInput == Vector2.zero)
             {
-                startvector = direction;
+                if (speed < this.speed+5)
+                {
+                    speed = this.speed;
+                    charge = 0;
+
+                }
+                
+                //startvector = direction;
                 FaceTo(Target.transform.position);
             }
             else
@@ -224,30 +250,54 @@ public class PlayerMovement : Entity
             }
 
             charge += Time.deltaTime;
-            if (charge >= 2&&speed<=20)
+            if (charge >= 3&&speed<=30)
             {
-                if (speed == 5)
+                if (speed == this.speed)
                 {
                     animator.SetTrigger("end");
-                    Effect.GetComponent<TrailRenderer>().enabled=true;
+                    isspinning=true;
+                }
+                speed +=5;
+                chargelevel += 1;
+                charge = 1;
+                if (speed > 30)
+                {
+                    Effect.GetComponent<TrailRenderer>().enabled = true;
                     Effect.GetComponent<ParticleSystem>().Play();
                 }
 
-                speed +=5;
-                charge = 0;
-                
             }
             yield return null;
         }
         Effect.GetComponent<TrailRenderer>().enabled=false;
 
         lineRenderer.enabled = false;
-        while (rb.velocity.magnitude>=5f)
+        rb.drag = rb.drag / 3;
+        while (isspinning&&rb.velocity.magnitude>=3f)
         {
+            if (RawInput != Vector2.zero)
+            {
+                float magnitude = rb.velocity.magnitude;
+                float currentAngle = Mathf.Atan2(rb.velocity.y, rb.velocity.x);
+                float targetAngle = Mathf.Atan2(FaceDirection.y, FaceDirection.x);
+                float newAngle = Mathf.LerpAngle(currentAngle * Mathf.Rad2Deg, targetAngle * Mathf.Rad2Deg, Time.deltaTime * 5) * Mathf.Deg2Rad;
+                Vector2 newVelocity = new Vector2(Mathf.Cos(newAngle), Mathf.Sin(newAngle)) * magnitude;
 
+                rb.velocity = newVelocity;
+            }
+            
             yield return null;
         }
+        rb.drag = rb.drag *3;
         ChangeState(State.Idle);
     }
-    
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (isspinning&&collision.gameObject.tag=="Enemy")
+        {
+            collision.gameObject.GetComponent<Entity>().GetHit(1 + chargelevel , rb.velocity/2);
+        }
+    }
+
+
 }

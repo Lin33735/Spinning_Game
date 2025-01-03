@@ -78,6 +78,7 @@ public class Entity : MonoBehaviour
     /// </summary>
     public virtual void GetHit(float damage,Vector2 knockback)
     {
+
         health -= damage;
         if(rb)rb.AddForce(knockback,ForceMode2D.Impulse);
         StartCoroutine(GetHitEffect(0.5f));
