@@ -40,11 +40,13 @@ public class Bug : Entity
 
     protected override void Update()
     {
+        base.Update();
         distanceFromTarget = Vector2.Distance(transform.position, target.transform.position);
     }
 
     protected override void FixedUpdate()
     {
+        base.FixedUpdate();
         FixedUpdateState(curState);
     }
 
