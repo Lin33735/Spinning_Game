@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class Bug : Entity
 {
@@ -11,10 +12,13 @@ public class Bug : Entity
     [Header("Targeting")]
     [SerializeField] private GameObject target;
     [SerializeField] private float distanceFromTarget;
+    [SerializeField] public Vector2 targetPos;
     [SerializeField] private Vector2 direction;
 
     [Header("Attack HitBoxes")]
-    [SerializeField] private GameObject GroundSlamHB;
+    [SerializeField] private GameObject SlamHB;
+    [SerializeField] private GameObject AcidHB;
+    [SerializeField] private bool acidActive;
 
     [Header("States")]
     [SerializeField] private BugState curState;
@@ -68,7 +72,12 @@ public class Bug : Entity
         }
         if (state == BugState.GroundSlam)
         {
-            StartCoroutine(JumpAttack());
+            StartCoroutine(SlamAttack());
+        }
+        if (state == BugState.SpitAcid)
+        {
+            targetPos = transform.position;
+            StartCoroutine(AcidAttack());
         }
     }
 
@@ -80,6 +89,10 @@ public class Bug : Entity
             {
                 ChangeState(BugState.GroundSlam);
             }
+            if (distanceFromTarget >= 10f & !acidActive)
+            {
+                ChangeState(BugState.SpitAcid);
+            }
         }
     }
 
@@ -87,15 +100,32 @@ public class Bug : Entity
     {
         if (state == BugState.GroundSlam)
         {
-            GroundSlamHB.gameObject.SetActive(false);
+            SlamHB.gameObject.SetActive(false);
+        }
+        if (state == BugState.SpitAcid)
+        {
+
         }
     } 
 
-    private IEnumerator JumpAttack()
+    private IEnumerator SlamAttack()
     {
         yield return new WaitForSeconds(1);
-        GroundSlamHB.gameObject.SetActive(true);
+        SlamHB.gameObject.SetActive(true);
         yield return new WaitForSeconds(1);
         ChangeState(BugState.Idle);
+    }
+    private IEnumerator AcidAttack()
+    {
+        targetPos = target.transform.position;
+        AcidHB.gameObject.SetActive(true);
+        acidActive = true;
+        yield return new WaitForSeconds(1);
+        ChangeState(BugState.Idle);
+        yield return new WaitForSeconds(8);
+        acidActive = false;
+        AcidHB.gameObject.SetActive(false);
+        AcidHB.transform.position = this.transform.position;
+        AcidHB.transform.localScale = new Vector3(0.2f, 0.2f, 0.2f);
     }
 }
