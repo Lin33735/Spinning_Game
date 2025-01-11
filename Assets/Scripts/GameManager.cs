@@ -23,8 +23,6 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
-        
         //Getting Mouse Position
         Vector3 mouseScreenPosition = Input.mousePosition;
         MousePosition = Camera.main.ScreenToWorldPoint(new Vector3(mouseScreenPosition.x, mouseScreenPosition.y, 0));
@@ -44,13 +42,16 @@ public class GameManager : MonoBehaviour
            
             Player.Target = null;
         }
+
+        
     }
     private void FixedUpdate()
     {
+
         Vector2 camposition = Player.transform.position;
         if (Player.Target)
         {
-            camposition += ((Vector2)Player.Target.transform.position - camposition)*0.8f;
+            camposition += ((Vector2)Player.Target.transform.position - camposition) * 0.8f;
         }
         MainCamera.transform.position += (new Vector3(camposition.x, camposition.y, MainCamera.transform.position.z) - MainCamera.transform.position) * 0.1f;
 

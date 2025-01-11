@@ -295,7 +295,9 @@ public class PlayerMovement : Entity
     {
         if (isspinning&&collision.gameObject.tag=="Enemy")
         {
-            collision.gameObject.GetComponent<Entity>().GetHit(1 + chargelevel , rb.velocity/2);
+            collision.gameObject.GetComponent<Entity>().GetHit(0.2f + chargelevel/3 , rb.velocity/2);
+            rb.velocity = rb.velocity * -1f;
+           
         }
     }
 

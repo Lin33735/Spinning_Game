@@ -66,12 +66,7 @@ public class Entity : MonoBehaviour
     /// </summary>
     public virtual void GetHit(float damage)
     {
-        health -= damage;
-        StartCoroutine(GetHitEffect(0.5f));
-        if (health <= 0)
-        {
-            DestroyBehavior();
-        }
+        GetHit(damage, Vector2.zero);
     }
     /// <summary>
     /// Do the get hit behavior, if health less than 0 call the die behavior
@@ -81,7 +76,7 @@ public class Entity : MonoBehaviour
 
         health -= damage;
         if(rb)rb.AddForce(knockback,ForceMode2D.Impulse);
-        StartCoroutine(GetHitEffect(0.5f));
+        StartCoroutine(GetHitEffect(1));
         if (health <= 0)
         {
             DestroyBehavior();
