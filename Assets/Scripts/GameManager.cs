@@ -47,13 +47,16 @@ public class GameManager : MonoBehaviour
     }
     private void FixedUpdate()
     {
-
-        Vector2 camposition = Player.transform.position;
-        if (Player.Target)
+        if (Player)
         {
-            camposition += ((Vector2)Player.Target.transform.position - camposition) * 0.8f;
+            Vector2 camposition = Player.transform.position;
+            if (Player.Target)
+            {
+                camposition += ((Vector2)Player.Target.transform.position - camposition) * 0.8f;
+            }
+            MainCamera.transform.position += (new Vector3(camposition.x, camposition.y, MainCamera.transform.position.z) - MainCamera.transform.position) * 0.1f;
+
         }
-        MainCamera.transform.position += (new Vector3(camposition.x, camposition.y, MainCamera.transform.position.z) - MainCamera.transform.position) * 0.1f;
 
     }
 }

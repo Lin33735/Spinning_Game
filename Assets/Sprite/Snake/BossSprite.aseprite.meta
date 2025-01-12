@@ -384,8 +384,8 @@ ScriptedImporter:
     uvTransform: {x: 0, y: 0}
   - name: BossSprite_12
     originalName: 
-    pivot: {x: 0.5, y: 0.5}
-    alignment: 0
+    pivot: {x: 0.8013916, y: 0.35993522}
+    alignment: 9
     border: {x: 0, y: 0, z: 0, w: 0}
     rect:
       serializedVersion: 2
@@ -452,7 +452,7 @@ ScriptedImporter:
       x: 222
       y: 118
       width: 27
-      height: 25
+      height: 26
     spriteID: 1476aefc31f34e14a851876bc31d6695
     spriteBone: []
     spriteOutline: []
@@ -484,8 +484,8 @@ ScriptedImporter:
     uvTransform: {x: 0, y: 0}
   - name: BossSprite_17
     originalName: 
-    pivot: {x: 0.5, y: 0.5}
-    alignment: 0
+    pivot: {x: 0.4890421, y: 0.22878075}
+    alignment: 9
     border: {x: 0, y: 0, z: 0, w: 0}
     rect:
       serializedVersion: 2
@@ -504,8 +504,8 @@ ScriptedImporter:
     uvTransform: {x: 0, y: 0}
   - name: BossSprite_18
     originalName: 
-    pivot: {x: 0.5, y: 0.5}
-    alignment: 0
+    pivot: {x: 0.5, y: 0.7995277}
+    alignment: 9
     border: {x: 0, y: 0, z: 0, w: 0}
     rect:
       serializedVersion: 2
@@ -574,6 +574,46 @@ ScriptedImporter:
       width: 16
       height: 13
     spriteID: bd6066fd2814ec04997f0d29b5338642
+    spriteBone: []
+    spriteOutline: []
+    vertices: []
+    spritePhysicsOutline: []
+    indices: 
+    edges: []
+    tessellationDetail: 0
+    uvTransform: {x: 0, y: 0}
+  - name: BossSprite_22
+    originalName: 
+    pivot: {x: 0.66917926, y: 0.7369725}
+    alignment: 9
+    border: {x: 0, y: 0, z: 0, w: 0}
+    rect:
+      serializedVersion: 2
+      x: 257
+      y: 118
+      width: 27
+      height: 26
+    spriteID: 641e26172d816c845bccd9b7b94d68cb
+    spriteBone: []
+    spriteOutline: []
+    vertices: []
+    spritePhysicsOutline: []
+    indices: 
+    edges: []
+    tessellationDetail: 0
+    uvTransform: {x: 0, y: 0}
+  - name: BossSprite_23
+    originalName: 
+    pivot: {x: 0.7083582, y: 0.3752542}
+    alignment: 9
+    border: {x: 0, y: 0, z: 0, w: 0}
+    rect:
+      serializedVersion: 2
+      x: 255
+      y: 63
+      width: 29
+      height: 25
+    spriteID: 7edda8d703ef8a4478366555ebd52d34
     spriteBone: []
     spriteOutline: []
     vertices: []

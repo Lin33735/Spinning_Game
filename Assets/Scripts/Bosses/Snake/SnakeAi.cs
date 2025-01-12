@@ -141,6 +141,11 @@ public class SnakeAi : Entity
         }
         if (state == State.Attacking)
         {
+            if (!Target)
+            {
+                ChangeState(State.Idle);
+                return;
+            }
             Vector3 direc = Target.position - transform.position;
             radians = Mathf.Atan2(direc.y, direc.x);
             
