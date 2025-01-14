@@ -5565,7 +5565,7 @@ Transform:
   m_GameObject: {fileID: 591583660}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1.0990313, y: -0.49203786, z: 0.51174635}
+  m_LocalPosition: {x: 18.4, y: -0.49203786, z: 0.51174635}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -7100,13 +7100,33 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1211978791145183546, guid: c2ec244adf2662a41b0c43c213529eb3, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 1211978791145183546, guid: c2ec244adf2662a41b0c43c213529eb3, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 1211978791145183546, guid: c2ec244adf2662a41b0c43c213529eb3, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 1211978791145183546, guid: c2ec244adf2662a41b0c43c213529eb3, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.7
+      objectReference: {fileID: 0}
+    - target: {fileID: 1211978791145183546, guid: c2ec244adf2662a41b0c43c213529eb3, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.6
+      objectReference: {fileID: 0}
     - target: {fileID: 3173191030063848875, guid: c2ec244adf2662a41b0c43c213529eb3, type: 3}
       propertyPath: speed
       value: 50
       objectReference: {fileID: 0}
     - target: {fileID: 3173191030063848875, guid: c2ec244adf2662a41b0c43c213529eb3, type: 3}
       propertyPath: maxhealth
-      value: 0
+      value: Infinity
       objectReference: {fileID: 0}
     - target: {fileID: 3342903546709489850, guid: c2ec244adf2662a41b0c43c213529eb3, type: 3}
       propertyPath: m_LocalScale.x
@@ -7184,6 +7204,10 @@ PrefabInstance:
       propertyPath: AcidHB
       value: 
       objectReference: {fileID: 639920828}
+    - target: {fileID: 4683976620487499576, guid: c2ec244adf2662a41b0c43c213529eb3, type: 3}
+      propertyPath: maxhealth
+      value: Infinity
+      objectReference: {fileID: 0}
     - target: {fileID: 5352291045572889490, guid: c2ec244adf2662a41b0c43c213529eb3, type: 3}
       propertyPath: m_TagString
       value: Enemy

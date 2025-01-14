@@ -101,7 +101,10 @@ MonoBehaviour:
   maxhealth: 100
   speed: 20
   targetPos: {x: 0, y: 0}
+  thisPos: {x: 0, y: 0}
   Bug: {fileID: 6467780127410493895}
+  changeScale: {x: 0, y: 0, z: 0}
+  counter: 0
   AcidHB: {fileID: 5352291045572889490}
 --- !u!58 &7180003317965198860
 CircleCollider2D:
@@ -247,6 +250,7 @@ MonoBehaviour:
   direction: {x: 0, y: 0}
   SlamHB: {fileID: 0}
   AcidHB: {fileID: 0}
+  acidActive: 0
   curState: 0
 --- !u!58 &6893781862044925821
 CircleCollider2D:
@@ -411,7 +415,10 @@ MonoBehaviour:
   maxhealth: 0
   speed: 0
   targetPos: {x: 0, y: 0}
+  thisPos: {x: 0, y: 0}
   Bug: {fileID: 0}
+  changeScale: {x: 0, y: 0, z: 0}
+  counter: 0
   AcidHB: {fileID: 0}
 --- !u!58 &30140268935072996
 CircleCollider2D:

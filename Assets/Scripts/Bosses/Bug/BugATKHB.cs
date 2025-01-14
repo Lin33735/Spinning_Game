@@ -16,13 +16,13 @@ public class BugATKHB : Entity
 
     private void Start()
     {
-        changeScale = new Vector3 (0.005f, 0.005f, 0f);
+        changeScale = new Vector3 (0.01f, 0.01f, 0f);
     }
 
     protected override void FixedUpdate()
     {
         counter++;
-        Debug.Log(counter);
+        //Debug.Log(counter);
 
         if (AcidHB.gameObject.activeSelf)
         {
