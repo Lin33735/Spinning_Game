@@ -269,6 +269,7 @@ public class PlayerMovement : Entity
                 speed +=5;
                 ChargeLevel += 1;
                 charge = 1;
+
                 if (speed > 30)
                 {
                     Effect.GetComponent<TrailRenderer>().enabled = true;

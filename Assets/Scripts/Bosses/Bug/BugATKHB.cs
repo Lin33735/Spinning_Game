@@ -16,13 +16,13 @@ public class BugATKHB : Entity
 
     private void Start()
     {
-        changeScale = new Vector3 (0.005f, 0.005f, 0f);
+        changeScale = new Vector3(0.01f, 0.01f, 0f);
     }
 
     protected override void FixedUpdate()
     {
         counter++;
-        Debug.Log(counter);
+        //Debug.Log(counter);
 
         if (AcidHB.gameObject.activeSelf)
         {
@@ -42,7 +42,7 @@ public class BugATKHB : Entity
     }
 
     private void OnTriggerStay2D(Collider2D other)
-    {   
+    {
         if (other.gameObject.tag == "Player")
         {
             if (counter >= 30)

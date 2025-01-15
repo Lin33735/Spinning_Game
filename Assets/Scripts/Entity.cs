@@ -17,6 +17,7 @@ public class Entity : MonoBehaviour
     protected SpriteRenderer spriteRenderer;
     protected Vector2 localScale;
     protected Animator animator;
+
     protected virtual void Awake()
     {
         health = maxhealth;
