@@ -7,6 +7,8 @@ public class Entity : MonoBehaviour
     [Header("Creature Property")]
     [SerializeField] protected float maxhealth;
     [SerializeField] protected float speed;
+    [SerializeField] protected float damage;
+    protected float gethitcd, maxgethitcd;
     public float health { get; set; }
 
 
@@ -15,10 +17,10 @@ public class Entity : MonoBehaviour
     protected SpriteRenderer spriteRenderer;
     protected Vector2 localScale;
     protected Animator animator;
-    public virtual void Awake()
+    protected virtual void Awake()
     {
         health = maxhealth;
-
+        gethitcd = maxgethitcd;
         if (!GetComponent<Rigidbody2D>())
         {
             rb = gameObject.AddComponent<Rigidbody2D>();
@@ -42,7 +44,10 @@ public class Entity : MonoBehaviour
         {
             SetSelfAsTarget(2f);
         }
-        
+        if (gethitcd > 0)
+        {
+            gethitcd -= Time.fixedDeltaTime;
+        }
     }
     /// <summary>
     /// If distance to cursor is less than certain distance, set itself as the player's target
@@ -73,14 +78,18 @@ public class Entity : MonoBehaviour
     /// </summary>
     public virtual void GetHit(float damage,Vector2 knockback)
     {
-
-        health -= damage;
-        if(rb)rb.AddForce(knockback,ForceMode2D.Impulse);
-        StartCoroutine(GetHitEffect(1));
-        if (health <= 0)
+        if (gethitcd <= 0)
         {
-            DestroyBehavior();
+            gethitcd = maxgethitcd;
+            health -= damage;
+            if (rb) rb.AddForce(knockback);
+            StartCoroutine(GetHitEffect(0.2f));
+            if (health <= 0)
+            {
+                DestroyBehavior();
+            }
         }
+        
     }
     /// <summary>
     /// Die behavior
@@ -98,7 +107,7 @@ public class Entity : MonoBehaviour
         spriteRenderer.material.SetFloat("_HurtDuration",1);
         while (counter <= duration)
         {
-            counter+=Time.fixedDeltaTime;
+            counter+=Time.deltaTime;
             spriteRenderer.material.SetFloat("_HurtDuration", 1*(1-counter/duration));
             yield return null;
         }

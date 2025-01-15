@@ -31,7 +31,7 @@ public class Bug : Entity
         Charge,
     }
 
-    public override void Awake()
+    protected override void Awake()
     {
         base.Awake();
         distanceFromTarget = Vector2.Distance(transform.position, target.transform.position);

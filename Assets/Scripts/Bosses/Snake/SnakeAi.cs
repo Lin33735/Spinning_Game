@@ -41,10 +41,11 @@ public class SnakeAi : Entity
 
     }
 
-    public override void Awake()
+    protected override void Awake()
     {
         base.Awake();
         lineRenderer = GetComponent<LineRenderer>();
+        lineRenderer.useWorldSpace = true;
         lineRenderer.positionCount = BodyNumber+1;
         Bodies = new Transform[BodyNumber];
         for (int i = 0; i < BodyNumber; i++)
@@ -115,7 +116,7 @@ public class SnakeAi : Entity
             subState = SubState.Moving;
             Vector3 direction = Target.position - transform.position;
             radians = Mathf.Atan2(direction.y, direction.x);
-            radians += Mathf.Deg2Rad * Random.Range(-45, 45);
+            radians += Mathf.Deg2Rad * Random.Range(-90, 90);
         }
         if (state == State.Attacking)
         {
@@ -169,7 +170,7 @@ public class SnakeAi : Entity
                 return;
             }
             count += Time.fixedDeltaTime;
-            if (count >= 3)
+            if (count >= 2)
             {
                 count = 0;
                 if (Random.Range(0, 3) == 0)
@@ -195,7 +196,7 @@ public class SnakeAi : Entity
         }
         if (Vector2.Distance(transform.position, Target.transform.position) <= 1.5f)
         {
-            Target.GetComponent<Entity>().GetHit(1, (Target.position - transform.position).normalized * 10);
+            Target.GetComponent<Entity>().GetHit(damage, (Target.position - transform.position).normalized * 10);
         }
         if (direction.x <= 0)
         {
@@ -205,24 +206,61 @@ public class SnakeAi : Entity
         {
             transform.localScale = new Vector3(-1, 1, 1);
         }
+
+        float fixedangle=angle;
         if (GettingAngle(direction) < 22.5)
         {
+
+            if (direction.x < 0)
+                fixedangle = 180;
+            else
+                fixedangle = 0;
             spriteRenderer.sprite = heads[0];
         }
         else if (GettingAngle(direction) < 67.5)
         {
-            if (direction.y <= 0)
-                spriteRenderer.sprite = heads[1];
+
+            if (direction.y < 0)
+            {
+                if (direction.x < 0)
+                    fixedangle = 225;
+                else
+                    fixedangle = 315;
+            }
             else
+            {
+                if (direction.x < 0)
+                    fixedangle = 135;
+                else
+                    fixedangle = 45;
+            }
+            if (direction.y <= 0)
+            {
+                spriteRenderer.sprite = heads[1];
+
+            }
+
+            else
+            {
                 spriteRenderer.sprite = heads[2];
+            }
         }
         else
         {
+
             if (direction.y <= 0)
+            {
                 spriteRenderer.sprite = heads[3];
+                fixedangle = 270;
+            }
             else
+            {
                 spriteRenderer.sprite = heads[4];
+                fixedangle = 90;
+            }
+
         }
+        direction = new Vector2(Mathf.Cos(fixedangle * Mathf.Deg2Rad), Mathf.Sin(fixedangle * Mathf.Deg2Rad));
     }
     void FixedUpdateSubState(State state,SubState substate)
     {
@@ -264,7 +302,7 @@ public class SnakeAi : Entity
     {
 
         base.GetHit(damage, knockback);
-        StartCoroutine(GetHitEffect2(1f));
+        StartCoroutine(GetHitEffect2(0.2f));
     }
     public IEnumerator GetHitEffect2(float duration)
     {
@@ -272,11 +310,16 @@ public class SnakeAi : Entity
         lineRenderer.material.SetFloat("_HurtDuration", 1);
         while (counter <= duration)
         {
-            counter += Time.fixedDeltaTime;
+            counter += Time.deltaTime;
             lineRenderer.material.SetFloat("_HurtDuration", 1 * (1 - counter / duration));
             yield return null;
         }
         lineRenderer.material.SetFloat("_HurtDuration", 0);
+
+    }
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        angle += 180;
 
     }
 }

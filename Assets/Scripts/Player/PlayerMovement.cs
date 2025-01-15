@@ -14,9 +14,9 @@ public class PlayerMovement : Entity
     public int segmentCount = 10;  // Á´×Ó¶ÎÊý
     public LineRenderer lineRenderer;
     [SerializeField]private float CurveAmount;
-    float chargelevel;
     bool walkable, attackable, runable;
     bool isrunning, isspinning;
+    public float charge,ChargeLevel;
     public enum State { 
         Idle,
         Walking,
@@ -34,6 +34,11 @@ public class PlayerMovement : Entity
         else
             lineRenderer = gameObject.AddComponent<LineRenderer>();
         lineRenderer.positionCount = segmentCount + 1;
+    }
+    protected override void Awake()
+    {
+        maxgethitcd = 2;
+        base.Awake();
     }
     protected override void FixedUpdate()
     {
@@ -160,7 +165,7 @@ public class PlayerMovement : Entity
         }
         counter = 0;
         lineRenderer.enabled = true;
-        while (Target && counter <= 1f)
+        while (Target && counter <= 0.5f)
         {
 
             CurveAmount = Mathf.Sin(counter*6 * Mathf.PI)*(1- counter)*0.6f;
@@ -182,28 +187,33 @@ public class PlayerMovement : Entity
 
 
         rb.AddForce((Target.position - transform.position).normalized * 10);
+        float Distance = (Target.position - transform.position).magnitude;
         Vector2 direction = (Target.position - transform.position).normalized;
         Vector2 startvector = new Vector2(direction.y, -direction.x);
-        float InputDirection = Mathf.Sign(Vector2.Dot(FaceDirection, startvector));
+        float InputDirection = Vector2.Dot(FaceDirection, startvector);
         if(RawInput==Vector2.zero)
             InputDirection = 0;
         float speed= this.speed;
-        float charge=0;
-        chargelevel = 0;
+        charge=0;
+        ChargeLevel = 0;
         animator.SetTrigger("attack");
         while (Target)
         {
             if (Vector2.Distance(transform.position, Target.transform.position) <= 1)
             {
-                Target.GetComponent<Entity>().GetHit(speed>30? 1+chargelevel: 1 + chargelevel*2, rb.velocity/2);
+                Target.GetComponent<Entity>().GetHit(speed>30? 1+ ChargeLevel : 1 + ChargeLevel * 2, rb.velocity/2);
                 Target = null;
+                GameManager.Instance.PauseTime(0 + ChargeLevel * 1.5f, ChargeLevel / 2);
+                ChargeLevel = 0;
                 break;
             }
-            InputDirection = Mathf.Sign(Vector2.Dot(FaceDirection, startvector));
-            
             direction = (Target.position - transform.position).normalized;
+            
+            InputDirection = Mathf.Sign(Vector2.Dot(FaceDirection, startvector));
             if (RawInput == Vector2.zero)
             {
+                startvector = new Vector2(direction.y, -direction.x);
+                Distance = (Target.position - transform.position).magnitude;
                 rb.AddForce(direction * speed);
                 if (speed >= 30)
                 {
@@ -216,9 +226,15 @@ public class PlayerMovement : Entity
             else
             {
                 if(speed> this.speed)
-                    rb.AddForce(direction * speed*4 * Vector2.Distance(transform.position, Target.transform.position) * 0.05f);
+                {
+                    rb.AddForce(direction / (Distance * 0.05f) * (speed * speed) / 30);
+                }
                 else
-                    rb.AddForce(direction * speed * Vector2.Distance(transform.position, Target.transform.position) * 0.05f);
+                {
+                    rb.AddForce(direction / (Distance * 0.05f));
+
+                }
+
             }
             if (RawInput == Vector2.zero)
                 InputDirection = 0;
@@ -227,14 +243,7 @@ public class PlayerMovement : Entity
             
             if (RawInput == Vector2.zero)
             {
-                if (speed < this.speed+5)
-                {
-                    speed = this.speed;
-                    charge = 0;
-
-                }
                 
-                //startvector = direction;
                 FaceTo(Target.transform.position);
             }
             else
@@ -250,7 +259,7 @@ public class PlayerMovement : Entity
             }
 
             charge += Time.deltaTime;
-            if (charge >= 3&&speed<=30)
+            if (charge >= 2&&speed<=30)
             {
                 if (speed == this.speed)
                 {
@@ -258,7 +267,7 @@ public class PlayerMovement : Entity
                     isspinning=true;
                 }
                 speed +=5;
-                chargelevel += 1;
+                ChargeLevel += 1;
                 charge = 1;
                 if (speed > 30)
                 {
@@ -269,13 +278,15 @@ public class PlayerMovement : Entity
             }
             yield return null;
         }
+
+        rb.velocity = rb.velocity.magnitude*(GameManager.Instance.MousePosition-(Vector2)transform.position).normalized;
         Effect.GetComponent<TrailRenderer>().enabled=false;
 
         lineRenderer.enabled = false;
         rb.drag = rb.drag / 3;
         while (isspinning&&rb.velocity.magnitude>=3f)
         {
-            if (RawInput != Vector2.zero)
+            if (RawInput != Vector2.zero&& rb.velocity.magnitude <= 10f)
             {
                 float magnitude = rb.velocity.magnitude;
                 float currentAngle = Mathf.Atan2(rb.velocity.y, rb.velocity.x);
@@ -293,10 +304,21 @@ public class PlayerMovement : Entity
     }
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (isspinning&&collision.gameObject.tag=="Enemy")
+        if (collision.gameObject.tag=="Enemy")
         {
-            collision.gameObject.GetComponent<Entity>().GetHit(0.2f + chargelevel/3 , rb.velocity/2);
-            rb.velocity = rb.velocity * -1f;
+            if(isspinning)
+                if (Target)
+                {
+                    collision.GetComponent<Entity>().GetHit((1 + ChargeLevel) / 10, rb.velocity / 2);
+                }
+                else
+                {
+                    collision.GetComponent<Entity>().GetHit(speed > 30 ? 1 + ChargeLevel : 1 + ChargeLevel * 2, rb.velocity / 2);
+                    GameManager.Instance.PauseTime(0 + ChargeLevel * 1.5f,ChargeLevel/2);
+                    ChargeLevel = 0;
+                }
+
+
            
         }
     }

@@ -7,8 +7,8 @@ public class Bodies : Entity
 {
     [SerializeField] public Transform Parent;
 
-    
-    public override void Awake()
+
+    protected override void Awake()
     {
         base.Awake();
 
@@ -30,12 +30,22 @@ public class Bodies : Entity
             DestroyBehavior();
             return;
         }
-        if(Vector2.Distance(transform.position,Parent.position)>0.5f)
-            rb.MovePosition(transform.position + (Parent.position-transform.position)*0.08f);
-        else if(Vector2.Distance(transform.position, Parent.position) > 4f)
-            rb.MovePosition(transform.position + (Parent.position - transform.position) * 1f);
+        Vector2 direction = Parent.position - transform.position;
+        float distance = direction.magnitude;
 
-        Vector3 direction = Parent.position - transform.position;
+        if (distance > 0.3f && distance <= 4f)
+        {
+            rb.MovePosition((Vector2)transform.position + direction * 0.1f);
+        }
+        else if (distance > 4f)
+        {
+            rb.MovePosition((Vector2)transform.position + direction * 1f);
+        }
+        else if (distance < 0.2f)  // ¾àÀëÌ«½üÊ±£¬¼·¿ª object
+        {
+            rb.MovePosition((Vector2)transform.position - direction.normalized * 0.1f);
+        }
+
         float targetAngle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
         transform.rotation = Quaternion.Euler(0, 0, targetAngle);
         if (transform.rotation.z > 90 && transform.rotation.z < 270)
@@ -49,7 +59,7 @@ public class Bodies : Entity
     }
     public override void GetHit(float damage)
     {
-        
+        if(Parent)
         if (Parent.GetComponent<Bodies>())
         {
             Parent.GetComponent<Bodies>().GetHit(damage);
