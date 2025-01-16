@@ -202,7 +202,7 @@ public class PlayerMovement : Entity
         charge=0;
         float chargelevel=0;
         animator.SetTrigger("attack");
-        float deltatime = (1f / 240f) / Time.deltaTime;
+        float deltatime = Time.deltaTime/(1f / 720f);
         print(deltatime);
         while (Target)
         {
