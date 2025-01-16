@@ -57,22 +57,28 @@ public class Bodies : Entity
             transform.localScale = new Vector3(1, 1, 1);
         }
     }
-    public override void GetHit(float damage)
-    {
-        if(Parent)
-        if (Parent.GetComponent<Bodies>())
-        {
-            Parent.GetComponent<Bodies>().GetHit(damage);
-        }
-        else
-        {
-            Parent.GetComponent<Entity>().GetHit(damage);
-        }
-        
-    }
-    public override void GetHit(float damage, Vector2 knockback)
+    public override bool GetHit(float damage)
     {
 
-        GetHit(damage);
+        return GetHit(damage, Vector2.zero, false);
+    }
+    public override bool GetHit(float damage, Vector2 knockback)
+    {
+
+        return GetHit(damage,knockback,false);
+    }
+    public override bool GetHit(float damage, Vector2 knockback,bool musthit)
+    {
+
+        if (Parent)
+            if (Parent.GetComponent<Bodies>())
+            {
+                Parent.GetComponent<Bodies>().GetHit(damage, knockback, musthit);
+            }
+            else
+            {
+                Parent.GetComponent<Entity>().GetHit(damage, knockback, musthit);
+            }
+        return true;
     }
 }

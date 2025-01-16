@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Net;
+using Unity.Collections;
+using UnityEditor;
 using UnityEngine;
 using static UnityEngine.GraphicsBuffer;
 
@@ -86,6 +88,7 @@ public class PlayerMovement : Entity
         if (state == State.Walking)
         {
             animator.SetBool("walking", true);
+
         }
         if (state == State.Attacking)
         {
@@ -107,14 +110,15 @@ public class PlayerMovement : Entity
         if (state == State.Walking)
         {
             FaceTo((Vector2)transform.position + FaceDirection);
+            CurrentSpeed += (speed - CurrentSpeed) * 0.1f;
             Vector2 _speed;
             if (isrunning)
-                _speed = FaceDirection * speed * 1.5f;
+                _speed = FaceDirection * CurrentSpeed * 1.7f;
             else
-                _speed = FaceDirection * speed;
+                _speed = FaceDirection * CurrentSpeed;
             if(rb.velocity.magnitude<= _speed.magnitude)
             {
-                rb.velocity= _speed;
+                rb.velocity = _speed;
             }
 
         }
@@ -124,7 +128,7 @@ public class PlayerMovement : Entity
         }
         if(state == State.Idle)
         {
-            rb.velocity = rb.velocity / 2;
+
         }
     }
     public void ExitState(State state)
@@ -134,6 +138,7 @@ public class PlayerMovement : Entity
             animator.SetBool("walking", false);
             animator.SetBool("running", false);
             isrunning = false;
+            rb.velocity = Vector2.zero;
         }
         if (state == State.Attacking)
         {
@@ -187,7 +192,7 @@ public class PlayerMovement : Entity
 
 
         rb.AddForce((Target.position - transform.position).normalized * 10);
-        float Distance = (Target.position - transform.position).magnitude;
+        float Distance = 1+(Target.position - transform.position).magnitude;
         Vector2 direction = (Target.position - transform.position).normalized;
         Vector2 startvector = new Vector2(direction.y, -direction.x);
         float InputDirection = Vector2.Dot(FaceDirection, startvector);
@@ -195,26 +200,37 @@ public class PlayerMovement : Entity
             InputDirection = 0;
         float speed= this.speed;
         charge=0;
-        ChargeLevel = 0;
+        float chargelevel=0;
         animator.SetTrigger("attack");
+        float deltatime = (1f / 240f) / Time.deltaTime;
+        print(deltatime);
         while (Target)
         {
-            if (Vector2.Distance(transform.position, Target.transform.position) <= 1)
+            if (Vector2.Distance(transform.position, Target.transform.position) <= Target.GetComponent<Entity>().Size)
             {
-                Target.GetComponent<Entity>().GetHit(speed>30? 1+ ChargeLevel : 1 + ChargeLevel * 2, rb.velocity/2);
-                Target = null;
-                GameManager.Instance.PauseTime(0 + ChargeLevel * 1.5f, ChargeLevel / 2);
-                ChargeLevel = 0;
-                break;
+                if (Target.tag=="Enemy")
+                {
+
+                    Target.GetComponent<Entity>().GetHit(speed > 30 ? 1 + ChargeLevel * 3 : 1 + ChargeLevel, rb.velocity / 2, true);
+                    Target = null;
+                    GameManager.Instance.PauseTime(0 + ChargeLevel * 1f, ChargeLevel / 2);
+                    ChargeLevel = 0;
+                    break;
+                }
+                
             }
+            if (chargelevel > 0)
+            {
+                gethitcd = 0.5f;
+            }
+
             direction = (Target.position - transform.position).normalized;
-            
             InputDirection = Mathf.Sign(Vector2.Dot(FaceDirection, startvector));
             if (RawInput == Vector2.zero)
             {
-                startvector = new Vector2(direction.y, -direction.x);
-                Distance = (Target.position - transform.position).magnitude;
-                rb.AddForce(direction * speed);
+                //startvector = new Vector2(direction.y, -direction.x);
+                Distance = 1+(Target.position - transform.position).magnitude;
+                rb.AddForce(direction * speed * rb.mass * deltatime);
                 if (speed >= 30)
                 {
                     rb.AddForce(direction * speed);
@@ -227,19 +243,20 @@ public class PlayerMovement : Entity
             {
                 if(speed> this.speed)
                 {
-                    rb.AddForce(direction / (Distance * 0.05f) * (speed * speed) / 30);
+                    rb.AddForce(direction / (Distance * 0.05f) * (speed * speed) / 30 * rb.mass * deltatime);
                 }
                 else
                 {
-                    rb.AddForce(direction / (Distance * 0.05f));
+                    rb.AddForce(direction / (Distance * 0.05f) * rb.mass *  deltatime);
 
                 }
 
             }
+
             if (RawInput == Vector2.zero)
                 InputDirection = 0;
             direction = new Vector2(direction.y, -direction.x);
-            rb.AddForce(direction * speed* InputDirection);
+            rb.AddForce(direction * speed* InputDirection*rb.mass * deltatime);
             
             if (RawInput == Vector2.zero)
             {
@@ -259,7 +276,7 @@ public class PlayerMovement : Entity
             }
 
             charge += Time.deltaTime;
-            if (charge >= 2&&speed<=30)
+            if ((charge >= 5||ChargeLevel> chargelevel) && chargelevel < 6)
             {
                 if (speed == this.speed)
                 {
@@ -267,8 +284,12 @@ public class PlayerMovement : Entity
                     isspinning=true;
                 }
                 speed +=5;
-                ChargeLevel += 1;
-                charge = 1;
+                chargelevel += 1;
+                if (chargelevel > ChargeLevel)
+                {
+                    ChargeLevel += 1;
+                }
+                charge = 4;
 
                 if (speed > 30)
                 {
@@ -287,11 +308,22 @@ public class PlayerMovement : Entity
         rb.drag = rb.drag / 3;
         while (isspinning&&rb.velocity.magnitude>=3f)
         {
-            if (RawInput != Vector2.zero&& rb.velocity.magnitude <= 10f)
+            if (RawInput != Vector2.zero&& rb.velocity.magnitude <= 15f)
             {
                 float magnitude = rb.velocity.magnitude;
                 float currentAngle = Mathf.Atan2(rb.velocity.y, rb.velocity.x);
                 float targetAngle = Mathf.Atan2(FaceDirection.y, FaceDirection.x);
+                float newAngle = Mathf.LerpAngle(currentAngle * Mathf.Rad2Deg, targetAngle * Mathf.Rad2Deg, Time.deltaTime * 5) * Mathf.Deg2Rad;
+                Vector2 newVelocity = new Vector2(Mathf.Cos(newAngle), Mathf.Sin(newAngle)) * magnitude;
+
+                rb.velocity = newVelocity;
+            }
+            else
+            {
+                float magnitude = rb.velocity.magnitude;
+                Vector2 vector2 = (GameManager.Instance.MousePosition - (Vector2)transform.position).normalized;
+                float currentAngle = Mathf.Atan2(rb.velocity.y, rb.velocity.x);
+                float targetAngle = Mathf.Atan2(vector2.y, vector2.x);
                 float newAngle = Mathf.LerpAngle(currentAngle * Mathf.Rad2Deg, targetAngle * Mathf.Rad2Deg, Time.deltaTime * 5) * Mathf.Deg2Rad;
                 Vector2 newVelocity = new Vector2(Mathf.Cos(newAngle), Mathf.Sin(newAngle)) * magnitude;
 
@@ -305,24 +337,61 @@ public class PlayerMovement : Entity
     }
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.gameObject.tag=="Enemy")
+        if (collision.gameObject.tag=="Enemy"&& collision.GetComponent<Entity>())
         {
             if(isspinning)
                 if (Target)
                 {
-                    collision.GetComponent<Entity>().GetHit((1 + ChargeLevel) / 10, rb.velocity / 2);
+                    collision.GetComponent<Entity>().GetHit((1 + ChargeLevel) / 20, rb.velocity / 2);
                 }
                 else
                 {
-                    collision.GetComponent<Entity>().GetHit(speed > 30 ? 1 + ChargeLevel : 1 + ChargeLevel * 2, rb.velocity / 2);
+                    collision.GetComponent<Entity>().GetHit(ChargeLevel >= 5 ? 1 + ChargeLevel * 3 : 1 + ChargeLevel, rb.velocity / 2,true);
                     GameManager.Instance.PauseTime(0 + ChargeLevel * 1.5f,ChargeLevel/2);
                     ChargeLevel = 0;
+
                 }
-
-
-           
         }
     }
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.tag == "Enemy" && collision.gameObject.GetComponent<Entity>())
+        {
+            if (isspinning)
+                if (Target)
+                {
 
+                    collision.gameObject.GetComponent<Entity>().GetHit((1 + ChargeLevel) / 20, rb.velocity / 2);
+                }
+                else
+                {
+                    collision.gameObject.GetComponent<Entity>().GetHit(ChargeLevel >= 5 ? 1 + ChargeLevel * 3 : 1 + ChargeLevel, rb.velocity / 2, true);
+                    GameManager.Instance.PauseTime(0 + ChargeLevel * 1.5f, ChargeLevel / 2);
+                    ChargeLevel = 0;
+
+                }
+        }
+    }
+    public override bool GetHit(float damage)
+    {
+        return GetHit(damage,Vector2.zero,false);
+    }
+    public override bool GetHit(float damage, Vector2 knockback)
+    {
+        return GetHit(damage, knockback, false);
+    }
+    /// <summary>
+    /// Do the get hit behavior, if health less than 0 call the die behavior
+    /// </summary>
+    public override bool GetHit(float damage, Vector2 knockback, bool MustHit)
+    {
+        if (base.GetHit(damage, knockback, MustHit))
+        {
+            GameManager.Instance.PauseTime(damage / 7, damage / 7);
+            return true;
+        }
+        return false;
+
+    }
 
 }

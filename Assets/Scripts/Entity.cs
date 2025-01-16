@@ -8,10 +8,11 @@ public class Entity : MonoBehaviour
     [SerializeField] protected float maxhealth;
     [SerializeField] protected float speed;
     [SerializeField] protected float damage;
+    [SerializeField] protected bool isTarget;
     protected float gethitcd, maxgethitcd;
-    public float health { get; set; }
-
-
+    [SerializeField] public float health;
+    public float CurrentSpeed;
+    public float Size = 1;
     [Header("Private Componets")]
     protected Rigidbody2D rb;
     protected SpriteRenderer spriteRenderer;
@@ -41,7 +42,7 @@ public class Entity : MonoBehaviour
     }
     protected virtual void FixedUpdate()
     {
-        if (tag == "Enemy")
+        if (isTarget || GameManager.Instance.PlayerTarget == transform)
         {
             SetSelfAsTarget(2f);
         }
@@ -70,25 +71,34 @@ public class Entity : MonoBehaviour
     /// <summary>
     /// Do the get hit behavior, if health less than 0 call the die behavior
     /// </summary>
-    public virtual void GetHit(float damage)
+    public virtual bool GetHit(float damage)
     {
-        GetHit(damage, Vector2.zero);
+        return GetHit(damage, Vector2.zero, false);
+    }
+    public virtual bool GetHit(float damage,Vector2 knockback)
+    {
+        return GetHit(damage, knockback, false);
     }
     /// <summary>
     /// Do the get hit behavior, if health less than 0 call the die behavior
     /// </summary>
-    public virtual void GetHit(float damage,Vector2 knockback)
+    public virtual bool GetHit(float damage,Vector2 knockback,bool MustHit)
     {
-        if (gethitcd <= 0)
+        if (gethitcd <= 0|| MustHit)
         {
             gethitcd = maxgethitcd;
             health -= damage;
-            if (rb) rb.AddForce(knockback);
+            if (rb) rb.AddForce(knockback,ForceMode2D.Impulse);
             StartCoroutine(GetHitEffect(0.2f));
             if (health <= 0)
             {
                 DestroyBehavior();
             }
+            return true;
+        }
+        else
+        {
+            return false;
         }
         
     }

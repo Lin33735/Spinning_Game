@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 2136101306992608445}
   m_Layer: 0
   m_Name: Dummy
-  m_TagString: Enemy
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -129,6 +129,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxhealth: 30
   speed: 0
+  damage: 0
+  isTarget: 1
 --- !u!61 &2136101306992608445
 BoxCollider2D:
   m_ObjectHideFlags: 0

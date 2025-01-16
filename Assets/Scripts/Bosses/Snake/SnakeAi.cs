@@ -43,6 +43,7 @@ public class SnakeAi : Entity
 
     protected override void Awake()
     {
+        maxgethitcd = 0.1f;
         base.Awake();
         lineRenderer = GetComponent<LineRenderer>();
         lineRenderer.useWorldSpace = true;
@@ -152,11 +153,11 @@ public class SnakeAi : Entity
             
             float currentAngle = angle;
 
-            float newAngle = Mathf.LerpAngle(currentAngle, radians * Mathf.Rad2Deg, 4 * Time.fixedDeltaTime);
+            float newAngle = Mathf.LerpAngle(currentAngle, radians * Mathf.Rad2Deg, 3 * Time.fixedDeltaTime);
             direction = new Vector2(Mathf.Cos(newAngle * Mathf.Deg2Rad), Mathf.Sin(newAngle * Mathf.Deg2Rad));
             angle = newAngle;
             count += Time.fixedDeltaTime;
-            if (count >= 10)
+            if (count >= 5)
             {
                 ChangeState(State.Idle);
             }
@@ -188,7 +189,7 @@ public class SnakeAi : Entity
             
             float currentAngle = angle;
 
-            float newAngle = Mathf.LerpAngle(currentAngle, radians * Mathf.Rad2Deg, 10 * Time.fixedDeltaTime);
+            float newAngle = Mathf.LerpAngle(currentAngle, radians * Mathf.Rad2Deg, 5 * Time.fixedDeltaTime);
             direction = new Vector2(Mathf.Cos(newAngle * Mathf.Deg2Rad), Mathf.Sin(newAngle * Mathf.Deg2Rad));
             // 设置角色的旋转
             angle = newAngle;
@@ -196,7 +197,11 @@ public class SnakeAi : Entity
         }
         if (Vector2.Distance(transform.position, Target.transform.position) <= 1.5f)
         {
-            Target.GetComponent<Entity>().GetHit(damage, (Target.position - transform.position).normalized * 10);
+            if(Target.GetComponent<Entity>().GetHit(damage, (Target.position - transform.position).normalized * 10))
+            {
+                angle += 180;
+            }
+
         }
         if (direction.x <= 0)
         {
@@ -294,15 +299,19 @@ public class SnakeAi : Entity
 
         return angleDegrees;
     }
-    public override void GetHit(float damage)
+    public override bool GetHit(float damage)
     {
-        GetHit(damage, Vector2.zero);
+        return GetHit(damage, Vector2.zero,false);
     }
-    public override void GetHit(float damage, Vector2 knockback)
+    public override bool GetHit(float damage, Vector2 knockback)
     {
-
-        base.GetHit(damage, knockback);
+        return GetHit(damage, knockback,false);
+    }
+    public override bool GetHit(float damage, Vector2 knockback,bool Musthit)
+    {
         StartCoroutine(GetHitEffect2(0.2f));
+        return base.GetHit(damage, knockback, Musthit);
+        
     }
     public IEnumerator GetHitEffect2(float duration)
     {
@@ -319,7 +328,8 @@ public class SnakeAi : Entity
     }
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        angle += 180;
+        radians += 180 * Mathf.Deg2Rad;
 
     }
+    
 }
