@@ -19,11 +19,14 @@ public class GameManager : MonoBehaviour
     private void Awake()
     {
         Instance = this;
+        MainCamera = Camera.main;
+        Player = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerMovement>();
+        Application.targetFrameRate = 60;
     }
     void Start()
     {
-        MainCamera = Camera.main;
-        Player = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerMovement>();
+
+
         CameraSize.Insert(0,MainCamera.orthographicSize);
         Slider.gameObject.SetActive(false);
         if (Player)
@@ -120,7 +123,7 @@ public class GameManager : MonoBehaviour
 
         while (count < time)
         {
-            count += Time.fixedDeltaTime;
+            count += Time.unscaledDeltaTime*8;
             Vector2 camposition = (Vector2)Player.transform.position+(new Vector2(Random.Range(1,-1), Random.Range(1, -1))* charge * (1-count/ time));
             MainCamera.transform.position += (new Vector3(camposition.x, camposition.y, MainCamera.transform.position.z) - MainCamera.transform.position) * 0.3f;
             MainCamera.orthographicSize += (8 - MainCamera.orthographicSize) * 0.3f;

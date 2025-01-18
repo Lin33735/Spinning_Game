@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Enemy
   - Wall
+  - Cliff
   layers:
   - Default
   - TransparentFX

@@ -30,19 +30,18 @@ public class Plants : Entity
     private void Start()
     {
         Target = GameManager.Instance.Player;
-
+        
         ChangeState(State.Idle);
     }
 
 
     protected override void Update()
     {
-        base.Update();//
+
 
     }
     protected override void FixedUpdate()
     {
-        base.FixedUpdate();
         FixedUpdateState(curState);
         if (health <= maxhealth / 2&&isTarget==true)
         {

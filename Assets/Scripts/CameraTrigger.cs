@@ -59,6 +59,7 @@ public class CameraTrigger : MonoBehaviour
             if (ActiveBoss)
             {
                 ActiveBoss.enabled = true;
+
                 GameManager.Instance.SetBoss(ActiveBoss);
             }
             if (Door)

@@ -8,9 +8,10 @@ using static UnityEngine.GraphicsBuffer;
 
 public class PlayerMovement : Entity
 {
-    
-    Vector2 PlayerInput, RawInput;
+
+    Vector2 PlayerInput, RawInput,LastPosition;
     Vector2 FaceDirection;
+    [Header("Private Componets")]
     public Transform Target;   // 链子目标
     public Transform Effect;
     public int segmentCount = 10;  // 链子段数
@@ -18,14 +19,29 @@ public class PlayerMovement : Entity
     [SerializeField]private float CurveAmount;
     bool walkable, attackable, runable;
     bool isrunning, isspinning;
-    public float charge,ChargeLevel;
-    public enum State { 
+    public float charge,ChargeLevel,timer;
+    bool fall;
+    public enum State
+    {
         Idle,
         Walking,
         Attacking,
+        Falling
     }
-    
+
     public State currentState;
+
+    [Header("Sound Effects")]
+    public AudioClip FootStep, Spinning, Charge, StartSpin;
+    public enum SoundEffect
+    {
+        Walking,
+        Spinning,
+        Charge,
+        StartSpin,
+        Swing
+    }
+
     public void Start()
     {
         walkable=true;
@@ -44,8 +60,11 @@ public class PlayerMovement : Entity
     }
     protected override void FixedUpdate()
     {
+        
         base.FixedUpdate();
+        
         StateUpdate(currentState);
+        
     }
     protected override void Update()
     {
@@ -104,6 +123,12 @@ public class PlayerMovement : Entity
             animator.SetBool("walking", false);
             animator.SetBool("running", false);
         }
+        if(state == State.Falling){
+            walkable = false;
+            fall = true;
+            timer = 0;
+            rb.velocity = Vector2.zero;
+        }
     }
     public void StateUpdate(State state)
     {
@@ -128,7 +153,33 @@ public class PlayerMovement : Entity
         }
         if(state == State.Idle)
         {
-
+            if (!fall)
+            {
+                LastPosition = transform.position;
+            }
+        }
+        if (state == State.Falling)
+        {
+            timer += Time.fixedDeltaTime;
+            if (transform.localScale.y > 0)
+            {
+                transform.localScale = transform.localScale * 0.9f;
+                transform.eulerAngles += new Vector3(0, 0, 1);
+            }
+            if (fall&&timer >= 1)
+            {
+                fall = false;
+                rb.MovePosition(LastPosition + (LastPosition - (Vector2)transform.position) * 0.05f);
+                
+            }
+            if (timer >= 1.1f)
+            {
+                transform.localScale = localScale;
+                transform.eulerAngles = new Vector3(0, 0, 0);
+                GetHit(5, Vector2.zero, true);
+                ChangeState(State.Idle);
+                walkable = true;
+            }
         }
     }
     public void ExitState(State state)
@@ -156,7 +207,8 @@ public class PlayerMovement : Entity
         
         if (!Target)
         {
-            ChangeState(State.Idle);
+            if (currentState == State.Attacking)
+                ChangeState(State.Idle);
             yield break;
         }
         float counter = 0;
@@ -186,7 +238,8 @@ public class PlayerMovement : Entity
         }
         if (!Target)
         {
-            ChangeState(State.Idle);
+            if (currentState == State.Attacking)
+                ChangeState(State.Idle);
             yield break;
         }
 
@@ -199,10 +252,11 @@ public class PlayerMovement : Entity
         if(RawInput==Vector2.zero)
             InputDirection = 0;
         float speed= this.speed;
-        charge=0;
+        charge=2;
         float chargelevel=0;
         animator.SetTrigger("attack");
-        float deltatime = Time.deltaTime/(1f / 720f);
+        // float deltatime = Time.deltaTime/(1f / 720f);
+        float deltatime = 10;
         print(deltatime);
         while (Target)
         {
@@ -212,9 +266,14 @@ public class PlayerMovement : Entity
                 {
 
                     Target.GetComponent<Entity>().GetHit(speed > 30 ? 1 + ChargeLevel * 3 : 1 + ChargeLevel, rb.velocity / 2, true);
-                    Target = null;
+                    
                     GameManager.Instance.PauseTime(0 + ChargeLevel * 1f, ChargeLevel / 2);
-                    ChargeLevel = 0;
+                    if (Target.GetComponent<Entity>().health > 0)
+                    {
+                        ChargeLevel = 0;
+                    }
+
+                    Target = null;
                     break;
                 }
                 
@@ -285,6 +344,7 @@ public class PlayerMovement : Entity
                 }
                 speed +=5;
                 chargelevel += 1;
+                SoundTrigger(SoundEffect.Charge);
                 if (chargelevel > ChargeLevel)
                 {
                     ChargeLevel += 1;
@@ -300,7 +360,7 @@ public class PlayerMovement : Entity
             }
             yield return null;
         }
-
+        SoundTrigger(SoundEffect.StartSpin);
         rb.velocity = rb.velocity.magnitude*(GameManager.Instance.MousePosition-(Vector2)transform.position).normalized;
         Effect.GetComponent<TrailRenderer>().enabled=false;
 
@@ -333,7 +393,21 @@ public class PlayerMovement : Entity
             yield return null;
         }
         rb.drag = rb.drag *3;
+        if(currentState == State.Attacking)
         ChangeState(State.Idle);
+    }
+    private void OnTriggerStay2D(Collider2D collision)
+    {
+        if (collision.tag == "Cliff" )
+        {
+            fall = true;
+            if (!isspinning)
+            {
+                ChangeState(State.Falling);
+                Target = null;
+            }
+
+        }
     }
     private void OnTriggerEnter2D(Collider2D collision)
     {
@@ -348,10 +422,18 @@ public class PlayerMovement : Entity
                 {
                     collision.GetComponent<Entity>().GetHit(ChargeLevel >= 5 ? 1 + ChargeLevel * 3 : 1 + ChargeLevel, rb.velocity / 2,true);
                     GameManager.Instance.PauseTime(0 + ChargeLevel * 1.5f,ChargeLevel/2);
-                    ChargeLevel = 0;
+                    if (collision.gameObject.GetComponent<Entity>().health > 0)
+                    {
+                        ChargeLevel = 0;
+                    }
 
                 }
         }
+        
+    }
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+
     }
     private void OnCollisionEnter2D(Collision2D collision)
     {
@@ -367,7 +449,10 @@ public class PlayerMovement : Entity
                 {
                     collision.gameObject.GetComponent<Entity>().GetHit(ChargeLevel >= 5 ? 1 + ChargeLevel * 3 : 1 + ChargeLevel, rb.velocity / 2, true);
                     GameManager.Instance.PauseTime(0 + ChargeLevel * 1.5f, ChargeLevel / 2);
-                    ChargeLevel = 0;
+                    if (collision.gameObject.GetComponent<Entity>().health > 0)
+                    {
+                        ChargeLevel = 0;
+                    }
 
                 }
         }
@@ -393,5 +478,42 @@ public class PlayerMovement : Entity
         return false;
 
     }
+    public void SoundTrigger(SoundEffect state)
+    {
+        if (state == SoundEffect.Walking)
+        {
+            audioSource.volume = 1.5f;
+            audioSource.pitch = 1 + Random.Range(-0.10f, 0.10f);
+            audioSource.clip = FootStep;
+            audioSource.Play();
+        }
+        if (state == SoundEffect.StartSpin)
+        {
+            audioSource.volume = 0.1f;
+            audioSource.pitch = 1;
+            audioSource.clip = StartSpin;
+            audioSource.Play();
+        }
+        if (state == SoundEffect.Spinning)
+        {
+            audioSource.pitch = 1 + Random.Range(-0.10f, 0.10f);
+            audioSource.clip = Spinning;
+            audioSource.Play();
+        }
+        if(state == SoundEffect.Charge)
+        {
+            audioSource.volume = 0.1f;
+            audioSource.pitch = 1 + Random.Range(-0.10f, 0.10f);
+            audioSource.clip = Charge;
+            audioSource.Play();
+        }
+        if(state == SoundEffect.Swing)
+        {
+            audioSource.pitch = 1 + Random.Range(-0.10f, 0.10f);
+            audioSource.clip = clip[0];
+            audioSource.Play();
+        }
+    }
+
 
 }

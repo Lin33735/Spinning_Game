@@ -18,7 +18,9 @@ public class Entity : MonoBehaviour
     protected SpriteRenderer spriteRenderer;
     protected Vector2 localScale;
     protected Animator animator;
-
+    [Header("Audio Source")]
+    public AudioSource audioSource;
+    public AudioClip[] clip;
     protected virtual void Awake()
     {
         health = maxhealth;
@@ -31,6 +33,7 @@ public class Entity : MonoBehaviour
         {
             rb = GetComponent<Rigidbody2D>();
         }
+        audioSource = GetComponent<AudioSource>();
         rb.gravityScale = 0;
         animator = GetComponent<Animator>();
         spriteRenderer = GetComponent<SpriteRenderer>();
@@ -128,6 +131,7 @@ public class Entity : MonoBehaviour
     /// <summary>
     /// Face to direction, change the scale of x
     /// </summary>
+    /// 
     public virtual void FaceTo(Vector2 position)
     {
         if (position.x > transform.position.x)
