@@ -38,7 +38,7 @@ public class NormalChase : Bullets
     }
     protected override void FixedUpdate()
     {
-        base.FixedUpdate();
+
         FixedUpdateState(curState);
     }
     void ChangeState(State newState)

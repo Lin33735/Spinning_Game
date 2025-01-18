@@ -42,6 +42,7 @@ public class Plants : Entity
     }
     protected override void FixedUpdate()
     {
+        base.FixedUpdate();
         FixedUpdateState(curState);
         if (health <= maxhealth / 2&&isTarget==true)
         {

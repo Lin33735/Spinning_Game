@@ -275,7 +275,7 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: -0.32874614}
+  m_Offset: {x: 0.040506363, y: -0.035773873}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.4}
@@ -286,7 +286,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 1.2820882, y: 1.1614755}
+  m_Size: {x: 1.7595043, y: 1.6897118}
   m_EdgeRadius: 0
 --- !u!212 &2016471901746275721
 SpriteRenderer:
@@ -404,9 +404,16 @@ MonoBehaviour:
   speed: 0
   damage: 20
   isTarget: 1
+  health: 0
+  CurrentSpeed: 0
+  Size: 3
+  audioSource: {fileID: 0}
+  clip: []
   Target: {fileID: 0}
   Warnning: {fileID: 1576564486069948031}
   Trap: {fileID: 898717378866768247, guid: 32c920310be00794d82e2e466c526c39, type: 3}
+  Bullet: {fileID: 8014770376719558166, guid: 0e2deba3f2c27934aad3897d6c29cbaf, type: 3}
+  Traps: []
   curState: 0
 --- !u!1 &8023754708669570727
 GameObject:

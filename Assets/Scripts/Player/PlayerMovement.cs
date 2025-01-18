@@ -161,24 +161,22 @@ public class PlayerMovement : Entity
         if (state == State.Falling)
         {
             timer += Time.fixedDeltaTime;
-            if (transform.localScale.y > 0)
+            if (transform.localScale.y > 0.1f)
             {
                 transform.localScale = transform.localScale * 0.9f;
                 transform.eulerAngles += new Vector3(0, 0, 1);
             }
-            if (fall&&timer >= 1)
+            if (timer >= 1)
             {
                 fall = false;
-                rb.MovePosition(LastPosition + (LastPosition - (Vector2)transform.position) * 0.05f);
+                rb.MovePosition(LastPosition + (LastPosition - (Vector2)transform.position) * 0.1f);
                 
             }
             if (timer >= 1.1f)
             {
-                transform.localScale = localScale;
-                transform.eulerAngles = new Vector3(0, 0, 0);
                 GetHit(5, Vector2.zero, true);
                 ChangeState(State.Idle);
-                walkable = true;
+                
             }
         }
     }
@@ -198,6 +196,13 @@ public class PlayerMovement : Entity
             Effect.GetComponent<ParticleSystem>().Stop();
             lineRenderer.enabled = false;
             isspinning = false;
+        }
+        if(state == State.Falling)
+        {
+            transform.localScale = localScale;
+            transform.eulerAngles = new Vector3(0, 0, 0);
+            
+            walkable = true;
         }
     }
     
@@ -285,7 +290,7 @@ public class PlayerMovement : Entity
 
             direction = (Target.position - transform.position).normalized;
             InputDirection = Mathf.Sign(Vector2.Dot(FaceDirection, startvector));
-            if (RawInput == Vector2.zero)
+            if (RawInput == Vector2.zero || fall)
             {
                 //startvector = new Vector2(direction.y, -direction.x);
                 Distance = 1+(Target.position - transform.position).magnitude;
@@ -312,12 +317,12 @@ public class PlayerMovement : Entity
 
             }
 
-            if (RawInput == Vector2.zero)
+            if (RawInput == Vector2.zero|| fall)
                 InputDirection = 0;
             direction = new Vector2(direction.y, -direction.x);
             rb.AddForce(direction * speed* InputDirection*rb.mass * deltatime);
             
-            if (RawInput == Vector2.zero)
+            if (RawInput == Vector2.zero || fall)
             {
                 
                 FaceTo(Target.transform.position);
@@ -401,7 +406,7 @@ public class PlayerMovement : Entity
         if (collision.tag == "Cliff" )
         {
             fall = true;
-            if (!isspinning)
+            if (currentState!= State.Attacking)
             {
                 ChangeState(State.Falling);
                 Target = null;
@@ -433,7 +438,12 @@ public class PlayerMovement : Entity
     }
     private void OnTriggerExit2D(Collider2D collision)
     {
+        if (collision.tag == "Cliff")
+        {
+            fall = false;
 
+
+        }
     }
     private void OnCollisionEnter2D(Collision2D collision)
     {

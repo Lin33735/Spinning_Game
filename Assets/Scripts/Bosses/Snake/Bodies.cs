@@ -11,7 +11,7 @@ public class Bodies : Entity
     protected override void Awake()
     {
         base.Awake();
-
+        
     }
 
 
@@ -31,6 +31,7 @@ public class Bodies : Entity
             return;
         }
         Vector2 direction = Parent.position - transform.position;
+        health = Parent.GetComponent<Entity>().health;
         float distance = direction.magnitude;
 
         if (distance > 0.3f && distance <= 4f)
