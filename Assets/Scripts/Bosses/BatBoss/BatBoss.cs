@@ -134,6 +134,10 @@ public class BatBoss : Entity
 
     void FixedUpdateState(State state)
     {
+        if (!GameManager.Instance.Player)
+        {
+            return;
+        }
         if (state == State.Idle)
         {
             if(Vector2.Distance(GameManager.Instance.Player.transform.position, transform.position) < 10)

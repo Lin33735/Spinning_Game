@@ -19,7 +19,7 @@ public class SnakeAi : Entity
     [SerializeField] private Vector2 direction;
     private float radians,angle;
     private float distanceFromTarget;
-    private float count;
+    private float count,attackcd;
 
     [Header("Attack HitBoxes")]
     
@@ -127,9 +127,16 @@ public class SnakeAi : Entity
 
     void FixedUpdateState(State state)
     {
+        if(attackcd>=0)
+        attackcd-=Time.fixedDeltaTime;
+        if (!GameManager.Instance.Player)
+        {
+            return;
+        }
         FixedUpdateSubState(state, subState);
         if (state == State.Idle)
         {
+
             Target = GameObject.FindGameObjectWithTag("Player").transform;
             if (Target != null)
             {
@@ -195,11 +202,12 @@ public class SnakeAi : Entity
             angle = newAngle;
             //transform.rotation = Quaternion.Euler(0, 0, newAngle);
         }
-        if (Vector2.Distance(transform.position, Target.transform.position) <= 1.5f)
+        if (attackcd<=0&&Vector2.Distance(transform.position, Target.transform.position) <= 1.5f)
         {
-            if(Target.GetComponent<Entity>().GetHit(damage, (Target.position - transform.position).normalized * 10))
+            if(Target.GetComponent<Entity>().GetHit(damage, (Target.position - transform.position).normalized * 10,true))
             {
                 angle += 180;
+                attackcd = 0.3f;
             }
 
         }

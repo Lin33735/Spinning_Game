@@ -94,11 +94,11 @@ public class TrapPlant : Entity
         }
         if (state == State.Attacking)
         {
-            tag = "Wall";
+
             timer += Time.fixedDeltaTime;
             if (timer >= 20)
             {
-                tag = "Enemy";
+
                 ChangeState(State.Idle);
             }
         }

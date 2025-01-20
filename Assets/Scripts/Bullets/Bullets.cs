@@ -11,6 +11,7 @@ public class Bullets : Entity
     protected float timer;
     public bool musthit = false;
     public bool isBullet = true;
+    public bool isLimit = true;
     void Start()
     {
         
@@ -30,7 +31,7 @@ public class Bullets : Entity
     {
         base.FixedUpdate();
         timer += Time.fixedDeltaTime;
-        if (timer >= 4)
+        if (isLimit&&timer >= 8)
         {
             DestroyBehavior();
         }

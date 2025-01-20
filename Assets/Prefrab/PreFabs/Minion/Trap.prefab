@@ -50,12 +50,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6418e44a3b6552d49a57cf8009982cba, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxhealth: 15
+  maxhealth: 5
   speed: 0
   damage: 10
   isTarget: 1
+  health: 0
   CurrentSpeed: 0
   Size: 1
+  audioSource: {fileID: 0}
+  clip: []
   timer: 0
   Warnning: {fileID: 2833569272320314585}
   Target: {fileID: 0}

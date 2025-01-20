@@ -63,7 +63,7 @@ public class GameManager : MonoBehaviour
     }
     private void FixedUpdate()
     {
-        if (pausing)
+        if (pausing||!Player)
         {
             return;
         }

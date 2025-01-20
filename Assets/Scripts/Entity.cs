@@ -91,6 +91,10 @@ public class Entity : MonoBehaviour
         {
             gethitcd = maxgethitcd;
             health -= damage;
+            if (health > maxhealth)
+            {
+                health = maxhealth;
+            }
             if (rb) rb.AddForce(knockback,ForceMode2D.Impulse);
             StartCoroutine(GetHitEffect(0.2f));
             if (health <= 0)

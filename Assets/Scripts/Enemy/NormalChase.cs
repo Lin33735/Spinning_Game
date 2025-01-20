@@ -38,7 +38,14 @@ public class NormalChase : Bullets
     }
     protected override void FixedUpdate()
     {
-
+        if (isTarget || GameManager.Instance.PlayerTarget == transform)
+        {
+            SetSelfAsTarget(2f);
+        }
+        if (gethitcd > 0)
+        {
+            gethitcd -= Time.fixedDeltaTime;
+        }
         FixedUpdateState(curState);
     }
     void ChangeState(State newState)
