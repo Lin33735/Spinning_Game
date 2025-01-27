@@ -21,6 +21,7 @@ public class Plants : Entity
         SummonTrap,
         Attacking,
         Shooting,
+        Dying,
     }
     protected override void Awake()
     {
@@ -42,10 +43,20 @@ public class Plants : Entity
     }
     protected override void FixedUpdate()
     {
+        
         base.FixedUpdate();
+        if (health <= 0)
+        {
+            return;
+        }
         FixedUpdateState(curState);
         if (health <= maxhealth / 2&&isTarget==true)
         {
+            if (!GameManager.Instance.tutorials.Contains(GameManager.Tutorial.Plant))
+            {
+                GameManager.Instance.tutorials.Add(GameManager.Tutorial.Plant);
+                GameManager.Instance.SendText("You can no longer attach rope to this Boss!");
+            }
             isTarget = false;
             damage += 20;
         }

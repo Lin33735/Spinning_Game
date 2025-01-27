@@ -32,7 +32,7 @@ public class SnakeAi : Entity
         Idle,
         Prowling,
         Attacking,
-
+        Dying,
     }
     public enum SubState
     {
@@ -48,6 +48,12 @@ public class SnakeAi : Entity
         lineRenderer = GetComponent<LineRenderer>();
         lineRenderer.useWorldSpace = true;
         lineRenderer.positionCount = BodyNumber+1;
+        
+    }
+
+    void Start()
+    {
+        ChangeState(State.Prowling);
         Bodies = new Transform[BodyNumber];
         for (int i = 0; i < BodyNumber; i++)
         {
@@ -63,15 +69,10 @@ public class SnakeAi : Entity
             }
             else
             {
-                b.Parent = Bodies[i-1];
+                b.Parent = Bodies[i - 1];
             }
             Bodies[i] = newObject.transform;
         }
-    }
-
-    void Start()
-    {
-        ChangeState(State.Prowling);
     }
 
     protected override void Update()
@@ -129,7 +130,7 @@ public class SnakeAi : Entity
     {
         if(attackcd>=0)
         attackcd-=Time.fixedDeltaTime;
-        if (!GameManager.Instance.Player)
+        if (!GameManager.Instance.Player||health<=0)
         {
             return;
         }

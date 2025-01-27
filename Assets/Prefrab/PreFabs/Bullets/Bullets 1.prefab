@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 3044579049266759317}
   m_Layer: 0
   m_Name: Bullets 1
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -138,15 +138,20 @@ MonoBehaviour:
   speed: 10
   damage: 2
   isTarget: 1
+  isBoss: 0
   health: 0
   CurrentSpeed: 0
   Size: 1
+  Loot: {fileID: 0}
   audioSource: {fileID: 0}
   clip: []
   Direction: {x: 0.72455, y: 0.68910265}
   HitCount: 1
   musthit: 0
   isBullet: 1
+  isLimit: 1
+  attacking: 1
+  EnemyTag: Player
 --- !u!50 &3044579049266759317
 Rigidbody2D:
   serializedVersion: 4

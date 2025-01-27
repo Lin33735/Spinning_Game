@@ -34,6 +34,7 @@ public class Spider : Entity
         OnWallAttack,
         Shooting,
         OnWallAttack2,
+        Dying,
     }
     protected override void Awake()
     {
@@ -65,6 +66,7 @@ public class Spider : Entity
             }
         }
         GetAllSpriteRenderers(transform);
+
     }
 
 
@@ -75,7 +77,12 @@ public class Spider : Entity
     }
     protected override void FixedUpdate()
     {
+
         base.FixedUpdate();
+        if (health <= 0)
+        {
+            return;
+        }
         FixedUpdateState(curState);
     }
     void ChangeState(State newState)
@@ -396,11 +403,15 @@ public class Spider : Entity
         {
             isattacking=true;
         }
+        if (state == State.Walking)
+        {
+            GameManager.Instance.ScreenShake(0.5f, 1f);
+        }
     }
 
     private void OnTriggerStay2D(Collider2D collision)
     {
-        print(collision.tag);
+        
         if (isattacking)
         {
             if (collision.tag=="Player")
@@ -409,5 +420,17 @@ public class Spider : Entity
                 isattacking = false;
             }
         }
+        
     }
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.tag == "Wall")
+        {
+            if (curState == State.Walking)
+            {
+                ChangeState(lastState);
+            }
+        }
+    }
+
 }

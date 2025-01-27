@@ -201,8 +201,8 @@ TextureImporter:
         y: 32
         width: 64
         height: 32
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      alignment: 9
+      pivot: {x: 0.58716273, y: 0.7433977}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -277,6 +277,48 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
+    - serializedVersion: 2
+      name: MC-Climb_8
+      rect:
+        serializedVersion: 2
+        x: 127
+        y: 9
+        width: 18
+        height: 19
+      alignment: 9
+      pivot: {x: 0.30146873, y: 0.66973233}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5b6c0235f1ac86146be4df79507bc208
+      internalID: 143661285
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: MC-Climb_9
+      rect:
+        serializedVersion: 2
+        x: 153
+        y: 9
+        width: 17
+        height: 20
+      alignment: 9
+      pivot: {x: 0.25390086, y: 0.61330765}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 90be93aedd88c404bb645a4f2e5ab8fc
+      internalID: 1850412149
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     physicsShape: []
     bones: []
@@ -296,6 +338,8 @@ TextureImporter:
       MC-Climb_5: 1840172381
       MC-Climb_6: 494901831
       MC-Climb_7: -1660951591
+      MC-Climb_8: 143661285
+      MC-Climb_9: 1850412149
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

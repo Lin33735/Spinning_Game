@@ -63,6 +63,10 @@ public class BatBoss : Entity
     protected override void FixedUpdate()
     {
         base.FixedUpdate();
+        if (health <= 0)
+        {
+            return;
+        }
         FixedUpdateState(curState);
     }
     void ChangeState(State newState)
@@ -113,6 +117,7 @@ public class BatBoss : Entity
         {
             for (int i = 0; i < Bats.Count; i++)
             {
+                if (Bats[i])
                 Bats[i].GetComponent<Entity>().GetHit(60,Vector2.zero,true);
             }
         }
@@ -221,6 +226,11 @@ public class BatBoss : Entity
             if (timer >= 3.7f)
             {
                 isTarget = false;
+                if (!GameManager.Instance.tutorials.Contains(GameManager.Tutorial.Bat))
+                {
+                    GameManager.Instance.tutorials.Add(GameManager.Tutorial.Bat);
+                    GameManager.Instance.SendText("You can not attach rope to the Huge Bat while it's flying");
+                }
                 ChangeState(State.Flying);
             }
         }
@@ -299,7 +309,7 @@ public class BatBoss : Entity
         Bullets b = Instantiate(Bullet);
         b.transform.position = transform.position;
         b.SetProperty(10, 15, vector2.normalized, true);
-        b.transform.eulerAngles = new Vector3(1f, 1f, Mathf.Atan2(vector2.y, vector2.x) * Mathf.Rad2Deg);
+        b.transform.eulerAngles = new Vector3(0f, 0f, Mathf.Atan2(vector2.y, vector2.x) * Mathf.Rad2Deg);
         for (int i = 0; i < 4; i++)
         {
             
@@ -312,7 +322,7 @@ public class BatBoss : Entity
             b = Instantiate(Bullet);
             b.transform.position = transform.position;
             b.SetProperty(10, 15, vector2.normalized, false);
-            b.transform.eulerAngles = new Vector3(1f, 1f, Mathf.Atan2(vector2.y, vector2.x) * Mathf.Rad2Deg);
+            b.transform.eulerAngles = new Vector3(0f, 0f, Mathf.Atan2(vector2.y, vector2.x) * Mathf.Rad2Deg);
         }
         
         yield return null;

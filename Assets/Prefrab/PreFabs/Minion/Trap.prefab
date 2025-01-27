@@ -54,9 +54,11 @@ MonoBehaviour:
   speed: 0
   damage: 10
   isTarget: 1
+  isBoss: 0
   health: 0
   CurrentSpeed: 0
-  Size: 1
+  Size: 0
+  Loot: {fileID: 2510739434465915233, guid: b5765329de59771419ec826e494e2859, type: 3}
   audioSource: {fileID: 0}
   clip: []
   timer: 0

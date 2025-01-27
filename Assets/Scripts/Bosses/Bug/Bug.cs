@@ -5,13 +5,16 @@ using Unity.VisualScripting;
 
 using UnityEngine;
 using UnityEngine.UIElements;
+using static UnityEngine.GraphicsBuffer;
 
 public class Bug : Entity
 {
     [Header("Movement")]
+    float timer,attackcd;
 
     [Header("Targeting")]
     [SerializeField] private GameObject target;
+    [SerializeField] private Transform Warnning;
     [SerializeField] private float distanceFromTarget;
     [SerializeField] public Vector2 targetPos;
     [SerializeField] private Vector2 direction;
@@ -21,6 +24,7 @@ public class Bug : Entity
     [SerializeField] private GameObject AcidHB;
     [SerializeField] private bool acidActive;
     [SerializeField] private bool canCharge;
+    [SerializeField] private Bullets bullet;
 
     [Header("States")]
     [SerializeField] private BugState curState;
@@ -28,20 +32,24 @@ public class Bug : Entity
     public enum BugState
     {
         Idle,
-        SpitAcid,
+        Walking,
         GroundSlam,
         Charge,
+        Jump,
+        Split,
     }
 
     protected override void Awake()
     {
         base.Awake();
-        distanceFromTarget = Vector2.Distance(transform.position, target.transform.position);
-        AcidHB.transform.parent = null;
+        
     }
 
     void Start()
     {
+        target = GameManager.Instance.Player.gameObject;
+        distanceFromTarget = Vector2.Distance(transform.position, target.transform.position);
+        AcidHB.transform.parent = null;
         ChangeState(BugState.Idle);
         canCharge = false;
     }
@@ -49,14 +57,18 @@ public class Bug : Entity
     protected override void Update()
     {
         base.Update();
-        distanceFromTarget = Vector2.Distance(transform.position, target.transform.position);
+
     }
 
     protected override void FixedUpdate()
     {
+        if (health <= 0)
+        {
+            return;
+        }
         base.FixedUpdate();
         FixedUpdateState(curState);
-        direction = target.transform.position - transform.position;
+        
     }
 
     void ChangeState(BugState newState)
@@ -71,65 +83,171 @@ public class Bug : Entity
 
     void EnterState(BugState state)
     {
+        timer = 0;
+        attackcd = 0;
+        
         if (state == BugState.Idle)
         {
-            speed = 0.2f;
+            animator.speed = 0;
+            animator.Play("Walking");
         }
         if (state == BugState.GroundSlam)
         {
-            StartCoroutine(SlamAttack());
+            animator.Play("Slam");
         }
-        if (state == BugState.SpitAcid)
+        if (state == BugState.Walking)
         {
-            targetPos = transform.position;
-            StartCoroutine(AcidAttack());
+            animator.Play("Walking");
+            direction = target.transform.position - transform.position;
+            targetPos = target.transform.position;
         }
         if (state == BugState.Charge)
         {
-            speed = 5;
+            direction = target.transform.position - transform.position;
+            animator.Play("Attacking");
+
         }
+        if (state == BugState.Jump)
+        {
+            animator.Play("Jump");
+
+        }
+        if (state == BugState.Split)
+        {
+            animator.Play("SplitAcid");
+
+        }
+        FaceTo(targetPos);
     }
 
     void FixedUpdateState(BugState state)
     {
+        distanceFromTarget = Vector2.Distance(transform.position, target.transform.position);
         if (state == BugState.Idle)
         {
-            Moving(direction);
-            if (distanceFromTarget <= 3f)
+            timer += Time.fixedDeltaTime;
+            if (timer >0.5f)
             {
-                ChangeState(BugState.GroundSlam);
+                ChangeState(BugState.Walking);
+
             }
-            if (distanceFromTarget >= 10f & !acidActive)
+            
+            
+        }
+        if(state == BugState.Walking)
+        {
+
+            rb.MovePosition((Vector2)transform.position + (targetPos-(Vector2)transform.position).normalized * speed*Time.fixedDeltaTime);
+            timer += Time.fixedDeltaTime;
+            if (Vector2.Distance(transform.position, targetPos) < 1f)
             {
-                ChangeState(BugState.SpitAcid);
+                targetPos = target.transform.position;
+                FaceTo(targetPos);
             }
-            if (distanceFromTarget >= 10f & acidActive & canCharge)
+            if (timer > 1)
             {
-                ChangeState(BugState.Charge);
+                if (distanceFromTarget <= 4f)
+                {
+                    ChangeState(BugState.GroundSlam);
+                    return;
+                }
+                else if(distanceFromTarget<8)
+                {
+                    if (Random.Range(0, 2) == 0)
+                        ChangeState(BugState.Charge);
+                    else
+                        ChangeState(BugState.Split);
+                    return;
+                }
+                if (distanceFromTarget >=8f)
+                {
+                    if (Random.Range(0, 2) == 0)
+                        ChangeState(BugState.Charge);
+                    else
+                        ChangeState(BugState.Jump);
+                    return;
+                }
+            }
+            if(timer>3)
+            {
+                if (Random.Range(0, 2) == 0)
+                    ChangeState(BugState.Charge);
+                else
+                    ChangeState(BugState.Jump);
+                return;
+            }
+        }
+        if(state == BugState.GroundSlam)
+        {
+            timer += Time.fixedDeltaTime;
+            if (timer > 1)
+            {
+                ChangeState(BugState.Idle);
             }
         }
         if (state == BugState.Charge)
         {
-            Moving(direction);
-            if (distanceFromTarget <= 2f)
+            FaceTo(targetPos);
+            timer += Time.fixedDeltaTime;
+            attackcd += Time.fixedDeltaTime;
+            if (attackcd > 0.5f)
             {
-                ChangeState(BugState.GroundSlam);
+                rb.AddForce(direction*120,ForceMode2D.Impulse);
+                attackcd = -10;
             }
+            if (timer > 0.8f)
+            {
+                if (distanceFromTarget <= 2f)
+                {
+                    ChangeState(BugState.GroundSlam);
+                }
+                else
+                {
+                    ChangeState(BugState.Idle);
+                }
+            }
+           
         }
-        transform.localScale = new Vector2(Mathf.Sign(direction.x) * localScale.x, localScale.y);
+        if (state == BugState.Jump)
+        {
+            targetPos = target.transform.position;
+            timer += Time.fixedDeltaTime;
+            attackcd += Time.fixedDeltaTime;
+            if (attackcd > 0.5f)
+            {
+                transform.position = targetPos;
+                attackcd = -10;
+            }
+            if (timer > 1.5f)
+            {
+                if (distanceFromTarget <= 2f)
+                {
+                    ChangeState(BugState.GroundSlam);
+                }
+                else
+                {
+                    ChangeState(BugState.Idle);
+                }
+            }
+
+        }
+        if (state == BugState.Split)
+        {
+
+            timer += Time.fixedDeltaTime;
+            if (timer > 0.5f)
+            {
+                ChangeState(BugState.Idle);
+            }
+
+        }
     }
 
     void ExitState(BugState state)
     {
-        if (state == BugState.GroundSlam)
-        {
-            SlamHB.gameObject.SetActive(false);
-            SlamHB.transform.position = this.transform.position;
-        }
-        if (state == BugState.SpitAcid)
-        {
+        if (state == BugState.Idle)
+            animator.speed = 1;
 
-        }
     }
 
     void Moving(Vector2 dir)
@@ -137,7 +255,24 @@ public class Bug : Entity
         rb.MovePosition((Vector2)transform.position + dir * speed * Time.deltaTime);
 
     }
+    public void AnimationTrigger(BugState state)
+    {
+        if (state == BugState.GroundSlam)
+        {
+            if (Vector2.Distance(target.transform.position, transform.position) < Warnning.localScale.x * 10)
+            {
+                target.GetComponent<Entity>().GetHit(damage, (target.transform.position - transform.position).normalized * 10, true);
+            }
+        }
+        if(state == BugState.Split)
+        {
+            targetPos = target.transform.position;
+            Lance b = Instantiate(bullet).GetComponent<Lance>();
+            b.transform.position = transform.position;
+            b.SetProperty(damage, 2, targetPos, true);
+        }  
 
+    }
     private IEnumerator SlamAttack()
     {
         yield return new WaitForSeconds(0.3f);

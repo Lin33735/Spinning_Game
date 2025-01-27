@@ -1,18 +1,22 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
+using UnityEngine.UIElements.Experimental;
 
 public class Entity : MonoBehaviour
 {
     [Header("Creature Property")]
     [SerializeField] protected float maxhealth;
-    [SerializeField] protected float speed;
+    [SerializeField] public float speed;
     [SerializeField] protected float damage;
     [SerializeField] protected bool isTarget;
+    [SerializeField] protected bool isBoss=false;
     protected float gethitcd, maxgethitcd;
     [SerializeField] public float health;
     public float CurrentSpeed;
     public float Size = 1;
+    public GameObject Loot;
     [Header("Private Componets")]
     protected Rigidbody2D rb;
     protected SpriteRenderer spriteRenderer;
@@ -45,9 +49,14 @@ public class Entity : MonoBehaviour
     }
     protected virtual void FixedUpdate()
     {
-        if (isTarget || GameManager.Instance.PlayerTarget == transform)
+        if (isTarget)
         {
             SetSelfAsTarget(2f);
+        }
+        else if(GameManager.Instance.Player.Target == transform)
+        {
+            GameManager.Instance.Player.Target = null;
+            GameManager.Instance.PlayerTarget = null;
         }
         if (gethitcd > 0)
         {
@@ -100,6 +109,8 @@ public class Entity : MonoBehaviour
             if (health <= 0)
             {
                 DestroyBehavior();
+                
+                    
             }
             return true;
         }
@@ -114,7 +125,20 @@ public class Entity : MonoBehaviour
     /// </summary>
     public virtual void DestroyBehavior()
     {
-        Destroy(gameObject);
+        if (isBoss)
+        {
+            StartCoroutine(Dying(5));
+        }
+        else
+        {
+            if (Loot)
+            {
+                Instantiate(Loot).transform.position = transform.position;
+            }
+            Destroy(gameObject);
+            
+        }
+
     }
     /// <summary>
     /// When get hit, set the sprite to white 
@@ -136,6 +160,38 @@ public class Entity : MonoBehaviour
     /// Face to direction, change the scale of x
     /// </summary>
     /// 
+    IEnumerator Dying(float time)
+    {
+        GameManager.Instance.isCutscene = true;
+        tag = "Untagged";
+        float count = 0;
+        Vector2 ve = transform.position;
+        speed = 0;
+        if (clip.Length>0)
+        {
+            audioSource.volume = 0.8f;
+            audioSource.clip = clip[0];
+            audioSource.Play();
+        }
+        if (animator)
+        {
+            animator.speed = 0;
+        }
+        while (count < time)
+        {
+            gethitcd = 10;
+            count += Time.unscaledDeltaTime;
+            localScale += (Vector2.zero- localScale) * 0.001f;
+            transform.localScale = new Vector2(localScale.x, localScale.y);
+            Vector2 newpoint = ve +  new Vector2(Random.Range(0.5f, -0.5f), Random.Range(0.5f, -0.5f))*(1-count/time);
+            transform.position = new Vector3(newpoint.x, newpoint.y);
+            yield return null;
+        }
+        isBoss = false;
+        GameManager.Instance.isCutscene = false;
+        DestroyBehavior();
+        yield return null;
+    }
     public virtual void FaceTo(Vector2 position)
     {
         if (position.x > transform.position.x)
@@ -147,5 +203,8 @@ public class Entity : MonoBehaviour
             transform.localScale = new Vector2(-localScale.x, localScale.y);
         }
     }
-
+    public void Shake(float level)
+    {
+        GameManager.Instance.ScreenShake(level/2,level);
+    }
 }

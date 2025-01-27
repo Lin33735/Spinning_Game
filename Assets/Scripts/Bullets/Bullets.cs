@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -12,6 +13,9 @@ public class Bullets : Entity
     public bool musthit = false;
     public bool isBullet = true;
     public bool isLimit = true;
+    public bool attacking = true;
+    public string EnemyTag = "Player";
+    
     void Start()
     {
         
@@ -19,8 +23,9 @@ public class Bullets : Entity
     protected override void Awake()
     {
         base.Awake();
-
-
+        localScale = transform.localScale;
+        if (GetComponent<CircleCollider2D>())
+        localScale = localScale*GetComponent<CircleCollider2D>().radius;
     }
     // Update is called once per frame
     protected override void Update()
@@ -30,6 +35,7 @@ public class Bullets : Entity
     protected override void FixedUpdate()
     {
         base.FixedUpdate();
+
         timer += Time.fixedDeltaTime;
         if (isLimit&&timer >= 8)
         {
@@ -43,6 +49,7 @@ public class Bullets : Entity
         this.speed = speed;
         Direction = direction;
         rb.velocity += Direction * speed;
+        transform.eulerAngles = new Vector3(0f, 0f, Mathf.Atan2(rb.velocity.y, rb.velocity.x) * Mathf.Rad2Deg);
     }
     public virtual void SetProperty(float dam, float speed, Vector2 direction,bool musthit)
     {
@@ -51,18 +58,39 @@ public class Bullets : Entity
         Direction = direction;
         rb.velocity += Direction * speed;
         this.musthit = musthit;
+        transform.eulerAngles = new Vector3(0f, 0f, Mathf.Atan2(rb.velocity.y, rb.velocity.x) * Mathf.Rad2Deg);
     }
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.tag=="Player")
+        if(attacking)
+        if (HitCount>=0&&collision.tag== EnemyTag && Vector2.Distance(collision.transform.position,transform.position)<= localScale.x+0.5f+Size)
         {
-            collision.GetComponent<PlayerMovement>().GetHit(damage,Direction.normalized*10, musthit);
+            collision.GetComponent<Entity>().GetHit(damage, Direction.normalized * 10, musthit);
             HitCount -= 1;
             musthit = false;
-            if (HitCount<=0)
+            if (HitCount <= 0)
             DestroyBehavior();
         }
-        if((collision.tag == "Wall")&&isBullet)
-        DestroyBehavior();
+        if((collision.tag == "Wall") && isBullet)
+        {
+            if (animator)
+            {
+                animator.SetTrigger("Set");
+            }
+            else
+            {
+                DestroyBehavior();
+            }
+        }
+
+    }
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        
+    }
+
+    public override void DestroyBehavior()
+    {
+            base.DestroyBehavior();
     }
 }

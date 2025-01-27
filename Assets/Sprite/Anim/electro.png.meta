@@ -748,7 +748,7 @@ TextureImporter:
         width: 15
         height: 14
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -769,7 +769,7 @@ TextureImporter:
         width: 15
         height: 14
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -790,7 +790,7 @@ TextureImporter:
         width: 15
         height: 14
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -811,7 +811,7 @@ TextureImporter:
         width: 15
         height: 14
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -819,6 +819,153 @@ TextureImporter:
       bones: []
       spriteID: ab8193e716371f64b9ed31f14abc9f72
       internalID: 1176607832
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: electro_34
+      rect:
+        serializedVersion: 2
+        x: 283
+        y: 217
+        width: 19
+        height: 13
+      alignment: 9
+      pivot: {x: 0, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 181791fbabac26047bb0807725c2d2ae
+      internalID: 443514142
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: electro_35
+      rect:
+        serializedVersion: 2
+        x: 196
+        y: 211
+        width: 23
+        height: 22
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0fb83ee47afc15c4a91da013bdcf1240
+      internalID: 1375388070
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: electro_36
+      rect:
+        serializedVersion: 2
+        x: 229
+        y: 212
+        width: 24
+        height: 24
+      alignment: 9
+      pivot: {x: 0.47946993, y: 0.50410527}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b715ff6962a0ee64da5b09790e3ec13b
+      internalID: 1189935400
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: electro_37
+      rect:
+        serializedVersion: 2
+        x: 200
+        y: 184
+        width: 17
+        height: 16
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 54303cb5f4164564a8093915e2b6a04c
+      internalID: -1236043678
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: electro_38
+      rect:
+        serializedVersion: 2
+        x: 231
+        y: 179
+        width: 17
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 134eba7ae4e797d4a9c9bac6e16e1f39
+      internalID: 1540635703
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: electro_39
+      rect:
+        serializedVersion: 2
+        x: 235
+        y: 153
+        width: 20
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5d34ae492bda2f447bb85bf653d15bc8
+      internalID: 1535882949
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: electro_40
+      rect:
+        serializedVersion: 2
+        x: 202
+        y: 157
+        width: 15
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c959db3eff6e89e4585c5e3807e5395d
+      internalID: 856622394
       vertices: []
       indices: 
       edges: []
@@ -862,7 +1009,14 @@ TextureImporter:
       electro_31: 1990474567
       electro_32: -1658495822
       electro_33: 1176607832
+      electro_34: 443514142
+      electro_35: 1375388070
+      electro_36: 1189935400
+      electro_37: -1236043678
+      electro_38: 1540635703
+      electro_39: 1535882949
       electro_4: 367930504
+      electro_40: 856622394
       electro_5: 1924515376
       electro_6: -1668298413
       electro_7: -1426806107
