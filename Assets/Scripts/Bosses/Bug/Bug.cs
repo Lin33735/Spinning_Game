@@ -218,7 +218,7 @@ public class Bug : Entity
                 transform.position = targetPos;
                 attackcd = -10;
             }
-            if (timer > 1.5f)
+            if (timer > 2.5f)
             {
                 if (distanceFromTarget <= 2f)
                 {
@@ -269,7 +269,7 @@ public class Bug : Entity
             targetPos = target.transform.position;
             Lance b = Instantiate(bullet).GetComponent<Lance>();
             b.transform.position = transform.position;
-            b.SetProperty(damage, 2, targetPos, true);
+            b.SetProperty(damage, 0.5f, targetPos, true);
         }  
 
     }

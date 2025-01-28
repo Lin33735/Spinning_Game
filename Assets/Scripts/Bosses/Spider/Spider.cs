@@ -234,7 +234,7 @@ public class Spider : Entity
                 ChangeState(State.Shooting);
             }
             timer += Time.fixedDeltaTime;
-            if (timer > 1)
+            if (timer > 2.5f)
             {
                 int i = Random.Range(0, 2);
                 if (i==0)

@@ -189,6 +189,7 @@ public class Entity : MonoBehaviour
         }
         isBoss = false;
         GameManager.Instance.isCutscene = false;
+        GameManager.Instance.Player.health = GameManager.Instance.Player.maxhealth;
         DestroyBehavior();
         yield return null;
     }

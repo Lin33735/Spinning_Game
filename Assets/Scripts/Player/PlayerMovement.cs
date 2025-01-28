@@ -29,6 +29,13 @@ public class PlayerMovement : Entity
     GameManager instance;
     public Vector2 SavePoint;
     public Bullets Bullet;
+    Vector2 direction;
+    Vector2 startvector;
+    float InputDirection;
+    float Distance;
+    float deltatime;
+    float spinspeed;
+
     public enum State
     {
         Idle,
@@ -202,6 +209,7 @@ public class PlayerMovement : Entity
         }
         if (state == State.Attacking)
         {
+            timer = 0;
             if (!instance.tutorials.Contains(GameManager.Tutorial.Spin))
             {
                 instance.tutorials.Add(GameManager.Tutorial.Spin);
@@ -288,6 +296,7 @@ public class PlayerMovement : Entity
         }
         if(state == State.Attacking)
         {
+
             if (instance.BuffList.Contains(GameManager.Buff.FinalBoss)){
                 attackcd += Time.fixedDeltaTime;
                 if (attackcd > 0.5f)
@@ -300,7 +309,53 @@ public class PlayerMovement : Entity
                     attackcd = 0;
                 }
             }
-            
+            timer += Time.fixedDeltaTime;
+            if (Target&&timer>0.5f)
+            {
+                deltatime = 20f * (60f / Application.targetFrameRate);
+                direction = (Target.position - transform.position).normalized;
+                InputDirection = Mathf.Sign(Vector2.Dot(FaceDirection, startvector));
+                
+                if (RawInput == Vector2.zero || (fall && ChargeLevel == 0))
+                {
+                    //startvector = new Vector2(direction.y, -direction.x);
+                    Distance = 2 + (Target.position - transform.position).magnitude;
+                    rb.AddForce(direction * spinspeed * rb.mass * deltatime);
+                    if (spinspeed >= 30)
+                    {
+                        rb.AddForce(direction * spinspeed);
+                        direction = new Vector2(direction.y, -direction.x);
+                        rb.AddForce(direction * spinspeed * -InputDirection);
+
+                    }
+                }
+                else
+                {
+                    if (Vector2.Distance(Target.transform.position, transform.position) > Distance/2)
+                    {
+                        if (spinspeed > speed)
+                        {
+                            rb.AddForce(direction / (Distance * 0.05f) * (spinspeed * spinspeed) / 30 * rb.mass * deltatime);
+                        }
+                        else
+                        {
+                            rb.AddForce(direction / (Distance * 0.05f) * rb.mass * deltatime);
+                        }
+                    }
+                    else
+                    {
+                        
+                    }
+                }
+
+                if (RawInput == Vector2.zero || (fall&&ChargeLevel==0))
+                    InputDirection = 0;
+                direction = new Vector2(direction.y, -direction.x);
+
+                rb.AddForce(direction * spinspeed * InputDirection * rb.mass * deltatime * (isrunning ? 1.5f : 1));
+            }
+           
+
         }
         if(state == State.Idle)
         {
@@ -443,22 +498,20 @@ public class PlayerMovement : Entity
 
 
         rb.AddForce((Target.position - transform.position).normalized * 10);
-        float Distance = 1+(Target.position - transform.position).magnitude;
-        Vector2 direction = (Target.position - transform.position).normalized;
-        Vector2 startvector = new Vector2(direction.y, -direction.x);
-        float InputDirection = Vector2.Dot(FaceDirection, startvector);
+        Distance = 1+(Target.position - transform.position).magnitude;
+        direction = (Target.position - transform.position).normalized;
+        startvector = new Vector2(direction.y, -direction.x);
+        InputDirection = Vector2.Dot(FaceDirection, startvector);
         if(RawInput==Vector2.zero)
             InputDirection = 0;
-        float speed= this.speed;
+        spinspeed= this.speed;
         charge=2;
         float chargelevel=0;
         animator.SetTrigger("attack");
         // float deltatime = Time.deltaTime/(1f / 720f);
-        float deltatime = 10f*(60f/Application.targetFrameRate);
-        print((60f / Application.targetFrameRate));
+        deltatime = 40f*(60f/Application.targetFrameRate);
         while (Target)
         {
-            deltatime = 10f * (60f / Application.targetFrameRate);
             if (Vector2.Distance(transform.position, Target.transform.position) < Target.GetComponent<Entity>().Size)
             {
                 if (Target.tag=="Enemy")
@@ -482,42 +535,7 @@ public class PlayerMovement : Entity
                 gethitcd = 0.5f;
             }
 
-            direction = (Target.position - transform.position).normalized;
-            InputDirection = Mathf.Sign(Vector2.Dot(FaceDirection, startvector));
-            if (RawInput == Vector2.zero || fall)
-            {
-                //startvector = new Vector2(direction.y, -direction.x);
-                Distance = 2+(Target.position - transform.position).magnitude;
-                rb.AddForce(direction * speed * rb.mass * deltatime);
-                if (speed >= 30)
-                {
-                    rb.AddForce(direction * speed);
-                    direction = new Vector2(direction.y, -direction.x);
-                    rb.AddForce(direction * speed * -InputDirection);
-                    
-                }
-            }
-            else
-            {
-                if (Vector2.Distance(Target.transform.position, transform.position) > 1)
-                {
-                    if (speed > this.speed)
-                    {
-                        rb.AddForce(direction / (Distance * 0.05f) * (speed * speed) / 30 * rb.mass * deltatime);
-                    }
-                    else
-                    {
-                        rb.AddForce(direction / (Distance * 0.05f) * rb.mass * deltatime);
-
-                    }
-                }
-            }
-
-            if (RawInput == Vector2.zero|| fall)
-                InputDirection = 0;
-            direction = new Vector2(direction.y, -direction.x);
-
-            rb.AddForce(direction * speed* InputDirection*rb.mass * deltatime* (isrunning?1.5f:1));
+            
             
             if (RawInput == Vector2.zero || fall)
             {
@@ -526,7 +544,7 @@ public class PlayerMovement : Entity
             }
             else
             {
-                FaceTo((Vector2)transform.position + direction * speed * InputDirection);
+                FaceTo((Vector2)transform.position + direction * spinspeed * InputDirection);
             }
             for (int i = 0; i <= segmentCount; i++)
             {
@@ -545,12 +563,12 @@ public class PlayerMovement : Entity
                     instance.tutorials.Add(GameManager.Tutorial.Release);
                     instance.SendText("Once you start spinning, *Release the mouse button* to launch toward the cursor");
                 }
-                if (speed == this.speed)
+                if (spinspeed == this.speed)
                 {
                     animator.SetTrigger("end");
                     isspinning=true;
                 }
-                speed +=5;
+                spinspeed += 5;
                 chargelevel += 1;
                 SoundTrigger(SoundEffect.Charge);
                 if (chargelevel > ChargeLevel)
@@ -559,7 +577,7 @@ public class PlayerMovement : Entity
                 }
                 charge = 4;
 
-                if (speed > 30)
+                if (spinspeed > 30)
                 {
                     Effect.GetComponent<TrailRenderer>().enabled = true;
                     Effect.GetComponent<ParticleSystem>().Play();
